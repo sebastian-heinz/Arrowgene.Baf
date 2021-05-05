@@ -7,13 +7,18 @@ using Arrowgene.Logging;
 
 namespace Arrowgene.Baf.Server.Packet
 {
+    /**
+     * TODO describe process
+     * Apply Xor
+     * Derive Key and Iv
+     * Decrypt
+     */
     public class PacketFactory
     {
         private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(PacketFactory));
 
         private const int PacketLengthSize = 2;
         private const int PacketIdSize = 2;
-        private const byte Padding = 0x4D;
 
         private IBuffer _buffer;
         private ushort _dataSize;
@@ -50,6 +55,7 @@ namespace Arrowgene.Baf.Server.Packet
 
             // TODO apply crypto?
             // BafXor.Xor(packetData);
+            Logger.Debug($"Send:{Environment.NewLine}{Util.HexDump(packetData)}");
 
             return packetData;
         }
@@ -104,11 +110,10 @@ namespace Arrowgene.Baf.Server.Packet
                     buffer.SetPositionStart();
 
                     byte[] password = buffer.ReadBytes(16);
-                    byte[] unknown = buffer.ReadBytes(8);
+                    byte[] endBlock = buffer.ReadBytes(8);
                     uint packetSize = buffer.ReadUInt32();
                     uint totalSize = buffer.ReadUInt32();
                     BafPbeWithMd5AndDes.DesKey key = BafPbeWithMd5AndDes.DeriveKey(password);
-
                     int remaining = buffer.Size - buffer.Position;
                     byte[] encrypted = buffer.ReadBytes(remaining);
 
@@ -124,11 +129,10 @@ namespace Arrowgene.Baf.Server.Packet
                     decryptedBuffer.SetPositionStart();
                     ushort packetId = decryptedBuffer.ReadUInt16();
                     packetLog.Insert(0,
-                        $"{Environment.NewLine}[PacketId: {packetId}] [packetSize: {packetSize}] [totalSize: {totalSize}] [unknown: {Util.ToHexString(unknown, ' ')}]{Environment.NewLine}");
+                        $"Received:{Environment.NewLine}[PacketId: {packetId}] [packetSize: {packetSize}] [totalSize: {totalSize}] [endBlock: {Util.ToHexString(endBlock, ' ')}]{Environment.NewLine}");
                     Logger.Debug(packetLog.ToString());
 
-
-                    int payloadSize = (int)packetSize - PacketIdSize;
+                    int payloadSize = (int) packetSize - PacketIdSize;
                     if (payloadSize > uint.MaxValue)
                     {
                         // err
@@ -138,6 +142,7 @@ namespace Arrowgene.Baf.Server.Packet
                     {
                         // err
                     }
+
                     int decryptedRemaining = decryptedBuffer.Size - decryptedBuffer.Position;
 
                     if (payloadSize > decryptedRemaining)
