@@ -1,8 +1,8 @@
-namespace Arrowgene.Baf
+namespace Arrowgene.Baf.Server.Common
 {
-    public class BafXor
+    public static class BafXor
     {
-        private static byte[] key_1 = new byte[]
+        private static readonly byte[] Key =
         {
             0x6B, 0x96, 0xA5, 0xE5, 0x59, 0x4F, 0xC3, 0xAD, 0x58, 0xBD, 0xF0, 0x84, 0x3C, 0x06, 0x46, 0x7A,
             0xE6, 0x0F, 0x78, 0x0A, 0x63, 0x84, 0xCE, 0xD7, 0x09, 0x32, 0x1D, 0x25, 0x18, 0xC6, 0x64, 0xC1,
@@ -50,21 +50,12 @@ namespace Arrowgene.Baf
             0xE7, 0xD4, 0xEC, 0xDD, 0xFE, 0x90, 0xCA, 0xBD, 0x08, 0x5E, 0x32, 0x00
         };
 
-        public static byte[] Xor_1(byte[] data)
+        public static void Xor(byte[] data)
         {
-            byte[] ret = new byte[data.Length];
-            int xor_i = 0;
             for (int i = 0; i < data.Length; i++)
             {
-                ret[i] = (byte) (data[i] ^ key_1[xor_i]);
-                xor_i++;
-                if (xor_i > 0x2bc)
-                {
-                    xor_i = 0;
-                }
+                data[i] ^= Key[i % Key.Length];
             }
-
-            return ret;
         }
     }
 }

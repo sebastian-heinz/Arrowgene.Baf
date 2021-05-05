@@ -2,11 +2,11 @@ using System.Net;
 using Arrowgene.Logging;
 using Arrowgene.Networking.Tcp.Server.AsyncEvent;
 
-namespace Arrowgene.Baf
+namespace Arrowgene.Baf.Server.Core
 {
     public class BafServer
     {
-        private static readonly ILogger _Logger = LogProvider.Logger<Logger>(typeof(BafServer));
+        private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(BafServer));
 
         private readonly AsyncEventServer _server;
         private readonly AsyncEventSettings _setting;

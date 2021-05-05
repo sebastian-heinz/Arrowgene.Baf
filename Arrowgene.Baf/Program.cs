@@ -1,4 +1,5 @@
 ﻿using System;
+using Arrowgene.Baf.Server.Core;
 using Arrowgene.Logging;
 
 namespace Arrowgene.Baf

@@ -1,4 +1,4 @@
-namespace Arrowgene.Baf
+namespace Arrowgene.Baf.Server.Common
 {
     public class BafPrng
     {
