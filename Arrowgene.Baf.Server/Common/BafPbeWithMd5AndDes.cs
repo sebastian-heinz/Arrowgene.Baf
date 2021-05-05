@@ -36,8 +36,8 @@ namespace Arrowgene.Baf.Server.Common
 
             byte[] key = new byte[8];
             byte[] iv = new byte[8];
-            Buffer.BlockCopy(password, 0, key, 0, 8);
-            Buffer.BlockCopy(password, 8, iv, 0, 8);
+            Buffer.BlockCopy(password, 0, iv, 0, 8);
+            Buffer.BlockCopy(password, 8, key, 0, 8);
             return new DesKey(key, iv);
         }
 
@@ -61,7 +61,7 @@ namespace Arrowgene.Baf.Server.Common
 
         public static byte[] Decrypt(byte[] input, DesKey key)
         {
-            return Decrypt(input, key.Iv, key.Key);
+            return Decrypt(input, key.Key, key.Iv);
         }
 
         public static byte[] Decrypt(byte[] input, byte[] key, byte[] iv)

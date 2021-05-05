@@ -1,5 +1,6 @@
 using Arrowgene.Baf.Server.Core;
 using Arrowgene.Baf.Server.Packet;
+using Arrowgene.Buffers;
 using Arrowgene.Logging;
 
 namespace Arrowgene.Baf.Server.PacketHandle
@@ -12,6 +13,9 @@ namespace Arrowgene.Baf.Server.PacketHandle
         public override void Handle(BafClient client, BafPacket packet)
         {
             Logger.Debug("Crypt_F303");
+            IBuffer b = new StreamBuffer();
+            BafPacket p = new BafPacket(1012, b.GetAllBytes());
+            client.Send(p);
         }
     }
 }

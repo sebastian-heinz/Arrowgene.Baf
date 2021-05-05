@@ -48,6 +48,12 @@ namespace Arrowgene.Baf.Server.Core
                 return;
             }
 
+            if (data == null)
+            {
+                Logger.Error("No data produced");
+                return;
+            }
+
             _socket.Send(data);
         }
     }

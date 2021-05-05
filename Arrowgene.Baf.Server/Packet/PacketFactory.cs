@@ -1,5 +1,6 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
+using System.Text;
 using Arrowgene.Baf.Server.Common;
 using Arrowgene.Buffers;
 using Arrowgene.Logging;
@@ -11,22 +12,46 @@ namespace Arrowgene.Baf.Server.Packet
         private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(PacketFactory));
 
         private const int PacketLengthSize = 2;
+        private const int PacketIdSize = 2;
+        private const byte Padding = 0x4D;
 
         private IBuffer _buffer;
         private ushort _dataSize;
         private int _position;
         private bool _readPacketLength;
-        private BafPbeWithMd5AndDes.DesKey _key;
+        private readonly BafXor.Stateful _xor;
 
         public PacketFactory()
         {
-            _key = null;
+            _xor = BafXor.CreateStatefulPacket();
             Reset();
         }
 
         public byte[] Write(BafPacket packet)
         {
-            return null;
+            int packetSize = packet.Data.Length + PacketLengthSize + PacketIdSize;
+            if (packetSize > ushort.MaxValue)
+            {
+                return null;
+            }
+
+            if (packetSize < 0)
+            {
+                return null;
+            }
+
+            ushort size = (ushort) packetSize;
+
+            IBuffer buffer = new StreamBuffer();
+            buffer.WriteUInt16(size);
+            buffer.WriteUInt16(packet.Id);
+            buffer.WriteBytes(packet.Data);
+            byte[] packetData = buffer.GetAllBytes();
+
+            // TODO apply crypto?
+            // BafXor.Xor(packetData);
+
+            return packetData;
         }
 
         public List<BafPacket> Read(byte[] data)
@@ -68,53 +93,62 @@ namespace Arrowgene.Baf.Server.Packet
 
                 if (_readPacketLength && _buffer.Size - _buffer.Position >= _dataSize)
                 {
+                    StringBuilder packetLog = new StringBuilder();
+
                     byte[] packetData = _buffer.ReadBytes(_dataSize);
-                    BafXor.Xor(packetData);
-                    if (_key == null)
+                    packetLog.Insert(0, $"Raw:{Environment.NewLine}{Util.HexDump(packetData)}");
+                    _xor.StatefulXor(packetData);
+                    packetLog.Insert(0, $"Xor:{Environment.NewLine}{Util.HexDump(packetData)}");
+
+                    IBuffer buffer = new StreamBuffer(packetData);
+                    buffer.SetPositionStart();
+
+                    byte[] password = buffer.ReadBytes(16);
+                    byte[] unknown = buffer.ReadBytes(8);
+                    uint packetSize = buffer.ReadUInt32();
+                    uint totalSize = buffer.ReadUInt32();
+                    BafPbeWithMd5AndDes.DesKey key = BafPbeWithMd5AndDes.DeriveKey(password);
+
+                    int remaining = buffer.Size - buffer.Position;
+                    byte[] encrypted = buffer.ReadBytes(remaining);
+
+                    byte[] decrypted = BafPbeWithMd5AndDes.Decrypt(encrypted, key);
+                    packetLog.Insert(0, $"Dec:{Environment.NewLine}{Util.HexDump(decrypted)}");
+
+                    if (decrypted.Length != totalSize)
                     {
-                        // No key received yet, expect key payload and validate
-                        if (_dataSize != 40)
-                        {
-                            Logger.Error("expected 40 bytes");
-                        }
-                        IBuffer keyBuffer = new StreamBuffer(packetData);
-                        keyBuffer.SetPositionStart();
-                        byte[] password = keyBuffer.ReadBytes(16);
-                        byte[] payloadA = keyBuffer.ReadBytes(8);
-                        uint a = keyBuffer.ReadUInt32();
-                        uint b = keyBuffer.ReadUInt32();
-                        byte[] payloadB = keyBuffer.ReadBytes(8);
-                        if (a != 2)
-                        {
-                            Logger.Error("expected 2");
-                        }
-
-                        if (b != 8)
-                        {
-                            Logger.Error("expected 8");
-                        }
-
-                        if (!StructuralComparisons.StructuralEqualityComparer.Equals(payloadA, payloadB))
-                        {
-                            Logger.Error("payloadA == payloadB");
-                        }
-
-                        _key = BafPbeWithMd5AndDes.DeriveKey(password, 16);
-
-                        packetData = payloadA;
+                        // err: unexpected size
                     }
 
-                    byte[] decrypted = BafPbeWithMd5AndDes.Decrypt(packetData, _key);
                     IBuffer decryptedBuffer = new StreamBuffer(decrypted);
                     decryptedBuffer.SetPositionStart();
-                    
                     ushort packetId = decryptedBuffer.ReadUInt16();
-                    int remaining = decryptedBuffer.Size - decryptedBuffer.Position;
-                    
-                    byte[] payload = decryptedBuffer.ReadBytes(remaining);
+                    packetLog.Insert(0,
+                        $"{Environment.NewLine}[PacketId: {packetId}] [packetSize: {packetSize}] [totalSize: {totalSize}] [unknown: {Util.ToHexString(unknown, ' ')}]{Environment.NewLine}");
+                    Logger.Debug(packetLog.ToString());
+
+
+                    int payloadSize = (int)packetSize - PacketIdSize;
+                    if (payloadSize > uint.MaxValue)
+                    {
+                        // err
+                    }
+
+                    if (payloadSize < 0)
+                    {
+                        // err
+                    }
+                    int decryptedRemaining = decryptedBuffer.Size - decryptedBuffer.Position;
+
+                    if (payloadSize > decryptedRemaining)
+                    {
+                        // err
+                    }
+
+                    byte[] payload = decryptedBuffer.ReadBytes(payloadSize);
                     BafPacket packet = new BafPacket(packetId, payload);
                     packets.Add(packet);
-                    
+
                     _readPacketLength = false;
                     read = _buffer.Position != _buffer.Size;
                 }
@@ -122,6 +156,7 @@ namespace Arrowgene.Baf.Server.Packet
 
             if (_buffer.Position == _buffer.Size)
             {
+                // TODO reuse buffer, avoid new allocation
                 Reset();
             }
             else
