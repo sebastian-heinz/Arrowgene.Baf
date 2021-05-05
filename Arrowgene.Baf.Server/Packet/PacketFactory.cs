@@ -8,10 +8,11 @@ using Arrowgene.Logging;
 namespace Arrowgene.Baf.Server.Packet
 {
     /**
-     * TODO describe process
-     * Apply Xor
-     * Derive Key and Iv
-     * Decrypt
+     * [16 bytes] key seed
+     * [8  bytes] encrypted end block
+     * [4  bytes] size of packet data without padding
+     * [4  bytes] size of packet data including padding
+     * [x  bytes] packet data + padding bytes (0x4D)
      */
     public class PacketFactory
     {
