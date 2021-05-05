@@ -1,4 +1,5 @@
 using System.Net;
+using Arrowgene.Baf.Server.PacketHandle;
 using Arrowgene.Logging;
 using Arrowgene.Networking.Tcp.Server.AsyncEvent;
 
@@ -16,6 +17,7 @@ namespace Arrowgene.Baf.Server.Core
         {
             _setting = new AsyncEventSettings();
             _consumer = new BafQueueConsumer(_setting);
+            _consumer.AddHandler(new Crypt_F303());
             _server = new AsyncEventServer(
                 IPAddress.Any,
                 3232,

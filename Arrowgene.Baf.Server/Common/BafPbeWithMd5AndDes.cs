@@ -9,9 +9,21 @@ namespace Arrowgene.Baf.Server.Common
      */
     public static class BafPbeWithMd5AndDes
     {
-        public static byte[] DeriveKey(byte[] buffer, uint iterationCount = 16)
+        public class DesKey
         {
-            if (buffer.Length != 16)
+            public DesKey(byte[] key, byte[] iv)
+            {
+                Key = key;
+                Iv = iv;
+            }
+
+            public byte[] Key { get; }
+            public byte[] Iv { get; }
+        }
+
+        public static DesKey DeriveKey(byte[] password, uint iterationCount = 16)
+        {
+            if (password.Length != 16)
             {
                 return null;
             }
@@ -19,13 +31,17 @@ namespace Arrowgene.Baf.Server.Common
             MD5 md5 = MD5.Create();
             for (int i = 0; i < iterationCount; i++)
             {
-                buffer = md5.ComputeHash(buffer);
+                password = md5.ComputeHash(password);
             }
 
-            return buffer;
+            byte[] key = new byte[8];
+            byte[] iv = new byte[8];
+            Buffer.BlockCopy(password, 0, key, 0, 8);
+            Buffer.BlockCopy(password, 8, iv, 0, 8);
+            return new DesKey(key, iv);
         }
 
-        public static byte[] DeriveKey(byte[] password, byte[] salt, uint iterationCount = 16)
+        public static DesKey DeriveKey(byte[] password, byte[] salt, uint iterationCount = 16)
         {
             if (password.Length != 8)
             {
@@ -43,6 +59,11 @@ namespace Arrowgene.Baf.Server.Common
             return DeriveKey(buffer, iterationCount);
         }
 
+        public static byte[] Decrypt(byte[] input, DesKey key)
+        {
+            return Decrypt(input, key.Iv, key.Key);
+        }
+
         public static byte[] Decrypt(byte[] input, byte[] key, byte[] iv)
         {
             DESCryptoServiceProvider cProv = new DESCryptoServiceProvider();
@@ -55,7 +76,12 @@ namespace Arrowgene.Baf.Server.Common
             cStream.FlushFinalBlock();
             return inStream.ToArray();
         }
-
+        
+        public static byte[] Encrypt(byte[] input, DesKey key)
+        {
+            return Encrypt(input, key.Key, key.Iv);
+        }
+        
         public static byte[] Encrypt(byte[] input, byte[] key, byte[] iv)
         {
             DESCryptoServiceProvider cProv = new DESCryptoServiceProvider();

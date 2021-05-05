@@ -46,73 +46,19 @@ namespace Arrowgene.Baf.Server.Core
             }
         }
 
-        private BafClient InitializeNewClient(ITcpSocket socket, byte[] data)
-        {
-            if (data.Length != 40)
-            {
-                // expected 40 byte init packet
-                return null;
-            }
-
-            IBuffer recv = new StreamBuffer(data);
-            //   PacketFactory pf = new PacketFactory();
-
-            //   IBuffer recv = new StreamBuffer(data);
-            //   recv.SetPositionStart();
-            //   ushort sz = recv.ReadUInt16();
-            //   byte[] rcv = recv.ReadBytes(sz - 2);
-
-            //   Logger.Debug(Environment.NewLine + Util.HexDump(rcv));
-            //   byte[] packet = BafXor.Xor_1(rcv);
-            //   Logger.Debug(Environment.NewLine + Util.HexDump(packet));
-
-            //   IBuffer pBuf = new StreamBuffer(packet);
-            //   pBuf.SetPositionStart();
-            //   byte[] a = pBuf.ReadBytes(16);
-            //   byte[] b = pBuf.ReadBytes(8);
-            //   byte[] c = pBuf.ReadBytes(8);
-            //   byte[] d = pBuf.ReadBytes(8);
-            //   
-            //   using var md5 = MD5.Create();
-            //   byte[] hash = a;
-            //   for (int i = 0; i < 0x10; i++)
-            //   {
-            //       hash = md5.ComputeHash(hash);
-            //   }
-            //   IBuffer phash = new StreamBuffer(hash);
-            //   phash.SetPositionStart();
-            //   byte[] e = phash.ReadBytes(8);
-            //   byte[] f = phash.ReadBytes(8);
-            //   
-            //   byte[] dec = Dec(b, f, e);
-            //         Logger.Debug(Environment.NewLine + Util.HexDump(dec));
-            return null;
-        }
-
         protected override void HandleReceived(ITcpSocket socket, byte[] data)
         {
             if (!socket.IsAlive)
             {
                 return;
             }
-
-            BafClient client;
-            if (_clients[socket.UnitOfOrder].ContainsKey(socket))
+            
+            if (!_clients[socket.UnitOfOrder].ContainsKey(socket))
             {
-                client = _clients[socket.UnitOfOrder][socket];
-            }
-            else
-            {
-                client = InitializeNewClient(socket, data);
-                if (client == null)
-                {
-                    // failed
-                    return;
-                }
-
-                _clients[socket.UnitOfOrder].Add(socket, client);
+                return;
             }
 
+            BafClient client = _clients[socket.UnitOfOrder][socket];
             List<BafPacket> packets = client.Receive(data);
             foreach (BafPacket packet in packets)
             {
@@ -131,15 +77,30 @@ namespace Arrowgene.Baf.Server.Core
                     Logger.Exception(ex);
                 }
             }
+            Logger.Debug("HandleReceived");
         }
 
         protected override void HandleDisconnected(ITcpSocket socket)
         {
+            if (!_clients[socket.UnitOfOrder].ContainsKey(socket))
+            {
+                Logger.Error("Socket already removed");
+                return;
+            }
+
+            _clients[socket.UnitOfOrder].Remove(socket);
             Logger.Debug("HandleDisconnected");
         }
 
         protected override void HandleConnected(ITcpSocket socket)
         {
+            if (_clients[socket.UnitOfOrder].ContainsKey(socket))
+            {
+                Logger.Error("Socket already connected");
+                return;
+            }
+            BafClient client = new BafClient(socket);
+            _clients[socket.UnitOfOrder].Add(socket, client);
             Logger.Debug("HandleConnected");
         }
     }

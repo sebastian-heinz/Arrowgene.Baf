@@ -10,10 +10,10 @@ namespace Arrowgene.Baf.Server.Core
     {
         private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(BafClient));
 
-        public BafClient(ITcpSocket clientSocket, PacketFactory packetFactory)
+        public BafClient(ITcpSocket clientSocket)
         {
             _socket = clientSocket;
-            _packetFactory = packetFactory;
+            _packetFactory = new PacketFactory();
         }
 
         private readonly ITcpSocket _socket;

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Arrowgene.Baf.Server.Common;
 using Arrowgene.Buffers;
@@ -8,20 +9,18 @@ namespace Arrowgene.Baf.Server.Packet
     public class PacketFactory
     {
         private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(PacketFactory));
-        
+
         private const int PacketLengthSize = 2;
 
         private IBuffer _buffer;
         private ushort _dataSize;
         private int _position;
         private bool _readPacketLength;
-        private byte[] _key;
-        private byte[] _iv;
+        private BafPbeWithMd5AndDes.DesKey _key;
 
-        public PacketFactory(byte[] key, byte[] iv)
+        public PacketFactory()
         {
-            _key = key;
-            _iv = iv;
+            _key = null;
             Reset();
         }
 
@@ -71,11 +70,51 @@ namespace Arrowgene.Baf.Server.Packet
                 {
                     byte[] packetData = _buffer.ReadBytes(_dataSize);
                     BafXor.Xor(packetData);
-                    packetData = BafPbeWithMd5AndDes.Decrypt(packetData, _key, _iv);
-                    IBuffer buffer = new StreamBuffer(packetData);
-                    buffer.SetPositionStart();
-                    BafPacket packet = new BafPacket(buffer);
+                    if (_key == null)
+                    {
+                        // No key received yet, expect key payload and validate
+                        if (_dataSize != 40)
+                        {
+                            Logger.Error("expected 40 bytes");
+                        }
+                        IBuffer keyBuffer = new StreamBuffer(packetData);
+                        keyBuffer.SetPositionStart();
+                        byte[] password = keyBuffer.ReadBytes(16);
+                        byte[] payloadA = keyBuffer.ReadBytes(8);
+                        uint a = keyBuffer.ReadUInt32();
+                        uint b = keyBuffer.ReadUInt32();
+                        byte[] payloadB = keyBuffer.ReadBytes(8);
+                        if (a != 2)
+                        {
+                            Logger.Error("expected 2");
+                        }
+
+                        if (b != 8)
+                        {
+                            Logger.Error("expected 8");
+                        }
+
+                        if (!StructuralComparisons.StructuralEqualityComparer.Equals(payloadA, payloadB))
+                        {
+                            Logger.Error("payloadA == payloadB");
+                        }
+
+                        _key = BafPbeWithMd5AndDes.DeriveKey(password, 16);
+
+                        packetData = payloadA;
+                    }
+
+                    byte[] decrypted = BafPbeWithMd5AndDes.Decrypt(packetData, _key);
+                    IBuffer decryptedBuffer = new StreamBuffer(decrypted);
+                    decryptedBuffer.SetPositionStart();
+                    
+                    ushort packetId = decryptedBuffer.ReadUInt16();
+                    int remaining = decryptedBuffer.Size - decryptedBuffer.Position;
+                    
+                    byte[] payload = decryptedBuffer.ReadBytes(remaining);
+                    BafPacket packet = new BafPacket(packetId, payload);
                     packets.Add(packet);
+                    
                     _readPacketLength = false;
                     read = _buffer.Position != _buffer.Size;
                 }
