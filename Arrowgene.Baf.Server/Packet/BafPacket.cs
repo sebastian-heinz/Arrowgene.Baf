@@ -44,8 +44,8 @@ namespace Arrowgene.Baf.Server.Packet
         {
             StringBuilder sb = new StringBuilder();
             sb.Append($"==={Environment.NewLine}");
-            sb.Append($"Id:[{Id} {IdValue} {IdValue:X}]{Environment.NewLine}");
-            sb.Append($"Source:[{Source}]{Environment.NewLine}");
+            sb.Append($"Id:{Id} Dec:{IdValue} Hex:{IdValue:X}{Environment.NewLine}");
+            sb.Append($"Source:{Source}{Environment.NewLine}");
             sb.Append($"Data:{Environment.NewLine}{Util.HexDump(Data)}");
             sb.Append("===");
             return sb.ToString();
