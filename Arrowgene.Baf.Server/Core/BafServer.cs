@@ -22,6 +22,7 @@ namespace Arrowgene.Baf.Server.Core
             _consumer.AddHandler(new InitialHandle());
             _consumer.AddHandler(new LoginHandle());
             _consumer.AddHandler(new ChannelListHandle());
+            _consumer.AddHandler(new JoinChannelHandle());
             
             _server = new AsyncEventServer(
                 IPAddress.Any,

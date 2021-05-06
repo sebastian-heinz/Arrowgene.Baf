@@ -6,6 +6,7 @@
     <ItemGroup>
         <PackageReference Include="Arrowgene.Buffers" Version="1.0.0" />
         <PackageReference Include="Arrowgene.Networking" Version="1.0.6" />
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
     </ItemGroup>
 
 </Project>

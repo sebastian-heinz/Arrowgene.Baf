@@ -6,6 +6,14 @@ namespace Arrowgene.Baf.Server.Common
 {
     public static class Util
     {
+        public static readonly Encoding EncodingSimpChinese;
+
+        static Util()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            EncodingSimpChinese = Encoding.GetEncoding("gb2312");
+        }
+
         public static byte[] FromHexString(string hexString)
         {
             if ((hexString.Length & 1) != 0)
