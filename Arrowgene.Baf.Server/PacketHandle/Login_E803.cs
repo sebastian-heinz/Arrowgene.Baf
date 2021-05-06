@@ -26,12 +26,12 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
             Logger.Debug($"Acc:{account} Pw:{password} Pin:{pin}");
             IBuffer b = new StreamBuffer();
-          
-            b.WriteInt32(0);
-           // b.WriteString("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+         // b.WriteBytes(test);
+           b.WriteInt32(0);
+           b.WriteString("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
 
             BafPacket p = new BafPacket(1001, b.GetAllBytes());
-          //  client.Send(p);
+            client.Send(p);
         }
 
         private static byte[] test =
