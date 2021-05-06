@@ -201,17 +201,7 @@ namespace Arrowgene.Baf.Server.Packet
                     ushort packetId = decryptedBuffer.ReadUInt16();
                     byte[] payload = decryptedBuffer.ReadBytes(dataSize);
 
-                    PacketId id;
-                    if (Enum.IsDefined(typeof(PacketId), packetId))
-                    {
-                        id = (PacketId) packetId;
-                    }
-                    else
-                    {
-                        id = PacketId.Unknown;
-                    }
-
-                    BafPacket packet = new BafPacket(id, payload);
+                    BafPacket packet = new BafPacket(packetId, payload, PacketSource.Client);
                     Logger.Packet(_client, packet);
                     packets.Add(packet);
 

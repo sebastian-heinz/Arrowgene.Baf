@@ -1,5 +1,6 @@
 ﻿using System;
 using Arrowgene.Baf.Server.Core;
+using Arrowgene.Baf.Server.Packet;
 using Arrowgene.Logging;
 
 namespace Arrowgene.Baf
@@ -35,21 +36,18 @@ namespace Arrowgene.Baf
                     break;
             }
 
-          // if (e.Log.Tag is LogPacketType)
-          // {
-          //     switch (logWriteEventArgs.Log.Tag)
-          //     {
-          //         case EzLogPacketType.In:
-          //             consoleColor = ConsoleColor.Green;
-          //             break;
-          //         case EzLogPacketType.Out:
-          //             consoleColor = ConsoleColor.Magenta;
-          //             break;
-          //         case EzLogPacketType.Unhandled:
-          //             consoleColor = ConsoleColor.Red;
-          //             break;
-          //     }
-          // }
+           if (e.Log.Tag is BafPacket packet)
+           {
+               switch (packet.Source)
+               {
+                   case PacketSource.Server:
+                       consoleColor = ConsoleColor.Green;
+                       break;
+                   case PacketSource.Client:
+                       consoleColor = ConsoleColor.Magenta;
+                       break;
+               }
+           }
 
             lock (ConsoleLock)
             {

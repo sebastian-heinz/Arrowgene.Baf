@@ -29,7 +29,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteInt32(0);
             b.WriteString("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
 
-            BafPacket p = new BafPacket(PacketId.LoginRes, b.GetAllBytes());
+            BafPacket p = new BafPacket(PacketId.LoginRes,  b.GetAllBytes());
             client.Send(p);
         }
 

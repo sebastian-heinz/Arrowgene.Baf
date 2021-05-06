@@ -77,14 +77,12 @@ namespace Arrowgene.Baf.Server.Logging
 
         public void Packet(ITcpSocket socket, BafPacket packet)
         {
-            Write(LogLevel.Info,
-                $"{socket.Identity} [PacketId:{packet.Id}]{Environment.NewLine}{Util.HexDump(packet.Data)}", packet);
+            Write(LogLevel.Info, $"{socket.Identity}{Environment.NewLine}{packet.AsString()}", packet);
         }
 
         public void Packet(BafClient client, BafPacket packet)
         {
-            Write(LogLevel.Info,
-                $"{client.Identity} [PacketId:{packet.Id}]{Environment.NewLine}{Util.HexDump(packet.Data)}", packet);
+            Write(LogLevel.Info, $"{client.Identity}{Environment.NewLine}{packet.AsString()}", packet);
         }
 
         public void Data(ITcpSocket socket, byte[] data, string message = "Data")
