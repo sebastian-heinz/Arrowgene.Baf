@@ -1,14 +1,21 @@
+using Arrowgene.Buffers;
+
 namespace Arrowgene.Baf.Server.Packet
 {
     public class BafPacket
     {
         public byte[] Data;
-        public ushort Id { get; }
+        public PacketId Id { get; }
 
-        public BafPacket(ushort id, byte[] data)
+        public BafPacket(PacketId id, byte[] data)
         {
             Id = id;
             Data = data;
+        }
+
+        public IBuffer CreateBuffer()
+        {
+            return new StreamBuffer(Data);
         }
     }
 }

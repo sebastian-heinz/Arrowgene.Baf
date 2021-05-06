@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Arrowgene.Baf.Server.Logging;
 using Arrowgene.Baf.Server.Packet;
 using Arrowgene.Logging;
 using Arrowgene.Networking.Tcp;
@@ -10,15 +11,15 @@ namespace Arrowgene.Baf.Server.Core
 {
     public class BafQueueConsumer : ThreadedBlockingQueueConsumer
     {
-        private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(BafQueueConsumer));
+        private static readonly BafLogger Logger = LogProvider.Logger<BafLogger>(typeof(BafQueueConsumer));
 
-        private readonly Dictionary<ushort, IPacketHandler> _packetHandlers;
+        private readonly Dictionary<PacketId, IPacketHandler> _packetHandlers;
         private readonly Dictionary<ITcpSocket, BafClient>[] _clients;
 
         public BafQueueConsumer(AsyncEventSettings socketSetting) : base(socketSetting, "BafQueueConsumer")
         {
             _clients = new Dictionary<ITcpSocket, BafClient>[socketSetting.MaxUnitOfOrder];
-            _packetHandlers = new Dictionary<ushort, IPacketHandler>();
+            _packetHandlers = new Dictionary<PacketId, IPacketHandler>();
         }
 
         public void AddHandler(IPacketHandler packetHandler, bool overwrite = false)
@@ -28,6 +29,7 @@ namespace Arrowgene.Baf.Server.Core
                 if (overwrite)
                 {
                     _packetHandlers[packetHandler.Id] = packetHandler;
+                    Logger.Info($"Packet Handler: {packetHandler.Id} got reassigned");
                 }
 
                 return;
@@ -51,7 +53,7 @@ namespace Arrowgene.Baf.Server.Core
             {
                 return;
             }
-            
+
             if (!_clients[socket.UnitOfOrder].ContainsKey(socket))
             {
                 return;
@@ -63,6 +65,7 @@ namespace Arrowgene.Baf.Server.Core
             {
                 if (!_packetHandlers.ContainsKey(packet.Id))
                 {
+                    Logger.Error(client, $"HandleReceived: no packet handler registered for: {packet.Id}");
                     continue;
                 }
 
@@ -73,34 +76,35 @@ namespace Arrowgene.Baf.Server.Core
                 }
                 catch (Exception ex)
                 {
-                    Logger.Exception(ex);
+                    Logger.Exception(client, ex);
                 }
             }
-            Logger.Debug("HandleReceived");
         }
 
         protected override void HandleDisconnected(ITcpSocket socket)
         {
             if (!_clients[socket.UnitOfOrder].ContainsKey(socket))
             {
-                Logger.Error("Socket already removed");
+                Logger.Error(socket,"HandleDisconnected: client not found");
                 return;
             }
 
+            BafClient client = _clients[socket.UnitOfOrder][socket];
             _clients[socket.UnitOfOrder].Remove(socket);
-            Logger.Debug("HandleDisconnected");
+            Logger.Info(client, "Disconnected");
         }
 
         protected override void HandleConnected(ITcpSocket socket)
         {
             if (_clients[socket.UnitOfOrder].ContainsKey(socket))
             {
-                Logger.Error("Socket already connected");
+                Logger.Error(socket,"HandleConnected: client already connected");
                 return;
             }
+
             BafClient client = new BafClient(socket);
             _clients[socket.UnitOfOrder].Add(socket, client);
-            Logger.Debug("HandleConnected");
+            Logger.Info(client, "Connected");
         }
     }
 }

@@ -6,31 +6,30 @@ using Arrowgene.Logging;
 
 namespace Arrowgene.Baf.Server.PacketHandle
 {
-    public class Login_E803 : PacketHandler
+    public class LoginHandle : PacketHandler
     {
-        private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(Login_E803));
+        private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(LoginHandle));
 
-        public override ushort Id => 1000; //0x3e8; 
+        public override PacketId Id => PacketId.LoginReq;
 
         public override void Handle(BafClient client, BafPacket packet)
         {
-            Logger.Debug("Login_E803");
-
             byte[] data = packet.Data;
             BafXor.XorLogin(data);
+            
             IBuffer buffer = new StreamBuffer(data);
             buffer.SetPositionStart();
             string account = buffer.ReadCString();
             string password = buffer.ReadCString();
             string pin = buffer.ReadCString();
+            
+            Logger.Debug($"Login: Acc:{account} Pw:{password} Pin:{pin}");
 
-            Logger.Debug($"Acc:{account} Pw:{password} Pin:{pin}");
             IBuffer b = new StreamBuffer();
-         // b.WriteBytes(test);
-           b.WriteInt32(0);
-           b.WriteString("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
+            b.WriteInt32(0);
+            b.WriteString("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
 
-            BafPacket p = new BafPacket(1001, b.GetAllBytes());
+            BafPacket p = new BafPacket(PacketId.LoginRes, b.GetAllBytes());
             client.Send(p);
         }
 

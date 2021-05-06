@@ -4,7 +4,7 @@ namespace Arrowgene.Baf.Server.Packet
 {
     public interface IPacketHandler
     {
-        ushort Id { get; }
+        PacketId Id { get; }
         void Handle(BafClient client, BafPacket packet);
     }
 }

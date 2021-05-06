@@ -8,7 +8,7 @@ namespace Arrowgene.Baf.Server.Packet
         {
         }
 
-        public abstract ushort Id { get; }
+        public abstract PacketId Id { get; }
         public abstract void Handle(BafClient client, BafPacket packet);
     }
 }

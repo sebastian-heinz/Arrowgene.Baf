@@ -5,16 +5,15 @@ using Arrowgene.Logging;
 
 namespace Arrowgene.Baf.Server.PacketHandle
 {
-    public class Crypt_F303 : PacketHandler
+    public class InitialHandle : PacketHandler
     {
-        private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(Crypt_F303));
+        private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(InitialHandle));
         
-        public override ushort Id => 1011;// 0x3F3; // 1011
+        public override PacketId Id => PacketId.InitialReq;
         public override void Handle(BafClient client, BafPacket packet)
         {
-            Logger.Debug("Crypt_F303");
             IBuffer b = new StreamBuffer();
-            BafPacket p = new BafPacket(1012, b.GetAllBytes());
+            BafPacket p = new BafPacket(PacketId.InitialRes, b.GetAllBytes());
             client.Send(p);
         }
     }

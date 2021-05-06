@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Arrowgene.Baf.Server.Logging;
 using Arrowgene.Baf.Server.Packet;
 using Arrowgene.Logging;
 using Arrowgene.Networking.Tcp;
@@ -8,16 +9,19 @@ namespace Arrowgene.Baf.Server.Core
 {
     public class BafClient
     {
-        private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(BafClient));
+        private static readonly BafLogger Logger = LogProvider.Logger<BafLogger>(typeof(BafClient));
+
+        private readonly ITcpSocket _socket;
+        private readonly PacketFactory _packetFactory;
 
         public BafClient(ITcpSocket clientSocket)
         {
             _socket = clientSocket;
-            _packetFactory = new PacketFactory();
+            _packetFactory = new PacketFactory(this);
+            Identity = _socket.Identity;
         }
 
-        private readonly ITcpSocket _socket;
-        private readonly PacketFactory _packetFactory;
+        public string Identity { get; }
 
         public List<BafPacket> Receive(byte[] data)
         {
@@ -28,7 +32,7 @@ namespace Arrowgene.Baf.Server.Core
             }
             catch (Exception ex)
             {
-                Logger.Exception(ex);
+                Logger.Exception(this, ex);
                 packets = new List<BafPacket>();
             }
 
@@ -44,13 +48,13 @@ namespace Arrowgene.Baf.Server.Core
             }
             catch (Exception ex)
             {
-                Logger.Exception(ex);
+                Logger.Exception(this, ex);
                 return;
             }
 
             if (data == null)
             {
-                Logger.Error("No data produced");
+                Logger.Error(this, $"No data produced to send for packetId: {packet.Id}");
                 return;
             }
 

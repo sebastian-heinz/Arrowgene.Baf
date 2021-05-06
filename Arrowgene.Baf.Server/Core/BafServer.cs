@@ -10,20 +10,24 @@ namespace Arrowgene.Baf.Server.Core
         private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(BafServer));
 
         private readonly AsyncEventServer _server;
-        private readonly AsyncEventSettings _setting;
         private readonly BafQueueConsumer _consumer;
+        private readonly BafSetting _setting;
 
-        public BafServer()
+        public BafServer(BafSetting setting)
         {
-            _setting = new AsyncEventSettings();
-            _consumer = new BafQueueConsumer(_setting);
-            _consumer.AddHandler(new Crypt_F303());
-            _consumer.AddHandler(new Login_E803());
+            _setting = new BafSetting(setting);
+            _consumer = new BafQueueConsumer(_setting.ServerSetting);
+            
+            _consumer.AddHandler(new UnknownHandle());
+            _consumer.AddHandler(new InitialHandle());
+            _consumer.AddHandler(new LoginHandle());
+            _consumer.AddHandler(new ChannelListHandle());
+            
             _server = new AsyncEventServer(
                 IPAddress.Any,
                 3232,
                 _consumer,
-                _setting
+                _setting.ServerSetting
             );
         }
 
