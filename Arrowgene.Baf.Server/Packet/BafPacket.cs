@@ -37,7 +37,9 @@ namespace Arrowgene.Baf.Server.Packet
 
         public IBuffer CreateBuffer()
         {
-            return new StreamBuffer(Data);
+            IBuffer buffer = new StreamBuffer(Data);
+            buffer.SetPositionStart();
+            return buffer;
         }
 
         public string AsString()
