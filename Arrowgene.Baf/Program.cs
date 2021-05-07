@@ -1,4 +1,5 @@
 ﻿using System;
+using Arrowgene.Baf.Server.Asset;
 using Arrowgene.Baf.Server.Core;
 using Arrowgene.Baf.Server.Packet;
 using Arrowgene.Logging;
@@ -14,10 +15,27 @@ namespace Arrowgene.Baf
         {
             LogProvider.OnLogWrite += LogProviderOnOnLogWrite;
             LogProvider.Start();
-            BafServer server = new BafServer(Setting);
-            server.Start();
-            Console.ReadKey();
-            server.Stop();
+
+            if (args.Length == 0)
+            {
+                BafServer server = new BafServer(Setting);
+                server.Start();
+                Console.ReadKey();
+                server.Stop();
+            }
+
+            if (args.Length == 1)
+            {
+                DataArchive archive = new DataArchive();
+                archive.Load(args[0]);
+            }
+
+            if (args.Length == 2)
+            {
+                DataArchive archive = new DataArchive();
+                archive.Load(args[0]);
+                archive.SaveAll(args[1]);
+            }
         }
 
         private static void LogProviderOnOnLogWrite(object sender, LogWriteEventArgs e)
@@ -36,18 +54,18 @@ namespace Arrowgene.Baf
                     break;
             }
 
-           if (e.Log.Tag is BafPacket packet)
-           {
-               switch (packet.Source)
-               {
-                   case PacketSource.Server:
-                       consoleColor = ConsoleColor.Green;
-                       break;
-                   case PacketSource.Client:
-                       consoleColor = ConsoleColor.Magenta;
-                       break;
-               }
-           }
+            if (e.Log.Tag is BafPacket packet)
+            {
+                switch (packet.Source)
+                {
+                    case PacketSource.Server:
+                        consoleColor = ConsoleColor.Green;
+                        break;
+                    case PacketSource.Client:
+                        consoleColor = ConsoleColor.Magenta;
+                        break;
+                }
+            }
 
             lock (ConsoleLock)
             {
