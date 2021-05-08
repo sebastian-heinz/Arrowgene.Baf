@@ -17,7 +17,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
             IBuffer buffer = packet.CreateBuffer();
             string name = buffer.ReadCString();
-            byte unk = buffer.ReadByte();
+            byte unk = buffer.ReadByte(); // ??? 00 = Single, 01 = Team ; 03 = Band Ensemble ???
             byte pKeyMode = buffer.ReadByte();
             KeyModeType keyMode = (KeyModeType)pKeyMode;
             byte unk2 = buffer.ReadByte();
@@ -30,47 +30,16 @@ namespace Arrowgene.Baf.Server.PacketHandle
             }
             uint unk4 = buffer.ReadUInt32();
             Logger.Debug($"Create Room: Name:{name} Pw:{password} KeyMode:{keyMode}");
-
-            // 00000000   B5 C4 B7 BF BC E4 00 00  00 01 00 00 00 00 00      µÄ·¿¼ä········· 
-            // 00000000   B5 C4 B7 BF BC E4 00 01  00 01 00 01 00 00 00      µÄ·¿¼ä········· 
-            // 00000000   B5 C4 B7 BF BC E4 00 01  00 01 00 02 00 00 00      µÄ·¿¼ä········· 
-            // 00000000   B5 C4 B7 BF BC E4 00 03  00 01 00 01 00 00 00      µÄ·¿¼ä········· 
-
-
+            
             IBuffer b = new StreamBuffer();
 
+            b.WriteInt16(6); // room number 0 - 299 (001 - 300)
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteByte(0);
-            
-            b.WriteByte(3);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            
-            b.WriteByte(0);
-            b.WriteByte(1);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0x25);
-            b.WriteByte(0);
-            b.WriteByte(0xD5);
-            b.WriteByte(7);
-            b.WriteByte(3);
-
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0x78);
-            b.WriteByte(0x61);
-            b.WriteByte(0x2D);
-            b.WriteByte(0x6D);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0xFB);
-            b.WriteByte(0xD);
+            b.WriteByte(0); // 0 = yellow | 1 = purple | 3 = blue
+            b.WriteByte((byte)keyMode);
+            b.WriteByte(hasPassword ? (byte)1 : (byte)0);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
@@ -79,23 +48,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
+            b.WriteByte(10); // battery
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);

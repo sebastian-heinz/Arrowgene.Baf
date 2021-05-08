@@ -11,11 +11,13 @@
         JoinChannelRes = 1005,
         InitialReq = 1011,
         InitialRes = 1012,
+        ProfileReq = 1029,
+        ProfileRes = 1030,
         CreateRoomReq = 2004,
         CreateRoomRes = 2005,
         ChannelChatReq = 2012,
         ChannelChatRes = 2013,
-        ProfileReq = 1029,
-        ProfileRes = 1030,
+        JoinRoomReq = 3002,
+        JoinRoomRes = 3003,
     }
 }
