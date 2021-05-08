@@ -14,13 +14,11 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override void Handle(BafClient client, BafPacket packet)
         {
-
             IBuffer buffer = packet.CreateBuffer();
             string name = buffer.ReadCString();
-            byte unk = buffer.ReadByte(); // ??? 00 = Single, 01 = Team ; 03 = Band Ensemble ???
-            byte pKeyMode = buffer.ReadByte();
-            KeyModeType keyMode = (KeyModeType)pKeyMode;
-            byte unk2 = buffer.ReadByte();
+            byte pTeamType = buffer.ReadByte();
+            byte pKeyType = buffer.ReadByte();
+            byte unk2 = buffer.ReadByte(); // checkbox
             byte pHasPassword = buffer.ReadByte();
             bool hasPassword = pHasPassword == 1;
             string password = "";
@@ -29,28 +27,31 @@ namespace Arrowgene.Baf.Server.PacketHandle
                  password = buffer.ReadCString();
             }
             uint unk4 = buffer.ReadUInt32();
-            Logger.Debug($"Create Room: Name:{name} Pw:{password} KeyMode:{keyMode}");
+            TeamType team = (TeamType)pTeamType;
+            KeyType key = (KeyType)pKeyType;
+            
+            Logger.Debug($"Create Room: Name:{name} Pw:{password} Key:{key} Team:{team}");
+            
             
             IBuffer b = new StreamBuffer();
 
-            b.WriteInt16(6); // room number 0 - 299 (001 - 300)
+            b.WriteInt16(1); // room number 0 - 299 (001 - 300)
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteByte(0); // 0 = yellow | 1 = purple | 3 = blue
-            b.WriteByte((byte)keyMode);
+            b.WriteByte((byte)team);
+            b.WriteByte((byte)key);
             b.WriteByte(hasPassword ? (byte)1 : (byte)0);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteByte(0);
+            b.WriteByte(0); // spectator 0=false 1 = true
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(10); // battery
-            b.WriteByte(0);
-            b.WriteByte(0);
+
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);

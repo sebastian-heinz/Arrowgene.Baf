@@ -1,6 +1,6 @@
 ﻿namespace Arrowgene.Baf.Server.Model
 {
-    public enum KeyModeType
+    public enum KeyType
     {
         Key5 = 2,
         Mouse = 1,
