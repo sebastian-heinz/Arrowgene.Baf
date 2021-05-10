@@ -30,6 +30,15 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
             IBuffer b = new StreamBuffer();
             b.WriteInt32(0);
+            
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            
+            
+            b.WriteString("TEST");
             b.WriteString("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
             
 

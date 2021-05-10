@@ -19,34 +19,12 @@ namespace Arrowgene.Baf.Server.PacketHandle
            
             IBuffer b = new StreamBuffer();
             b.WriteInt32(1); // number of channels
+            
             // channel start
             b.WriteInt16(0); // tab 100, 200, 300
             b.WriteInt16(0); // number 1XX
-            
-            b.WriteInt32(10); // max load
-            b.WriteInt32(5); // current load
-            
-      
-            b.WriteString("aaaaa");
-            b.WriteString("aaaaa");
-            b.WriteString("aaaaa");
-            b.WriteByte(2);
-            b.WriteString("abbbbbbbbb");
-            b.WriteByte(2);
-            b.WriteString("ccccccc");
-            b.WriteByte(2);
-            b.WriteString("a");
-            b.WriteByte(2);
-            b.WriteString("a");
-            b.WriteByte(2);
-            b.WriteString("a");
-            b.WriteByte(255);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(123);
-            b.WriteByte(0);
-            b.WriteByte(0);
+            b.WriteInt32(0); // max load
+            b.WriteInt32(0); // current load
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);

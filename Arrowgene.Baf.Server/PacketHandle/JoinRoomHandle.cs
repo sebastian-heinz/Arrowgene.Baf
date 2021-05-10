@@ -20,12 +20,10 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteByte(0);
             b.WriteByte(0);
             
-            b.WriteByte(3);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
             
-            b.WriteByte(0);
             b.WriteByte(1);
             b.WriteByte(0);
             b.WriteByte(0);
@@ -38,15 +36,15 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteByte(0x78);
-            b.WriteByte(0x61);
-            b.WriteByte(0x2D);
-            b.WriteByte(0x6D);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteByte(0xFB);
-            b.WriteByte(0xD);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
