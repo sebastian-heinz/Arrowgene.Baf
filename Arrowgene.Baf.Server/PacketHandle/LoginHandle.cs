@@ -36,10 +36,32 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
             
             
-            b.WriteString("TEST");
-            b.WriteString("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890");
             
 
             BafPacket p = new BafPacket(PacketId.LoginRes,  b.GetAllBytes());

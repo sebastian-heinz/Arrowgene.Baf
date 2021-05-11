@@ -1,6 +1,7 @@
 ﻿using System;
 using Arrowgene.Baf.Server.Asset;
 using Arrowgene.Baf.Server.Core;
+using Arrowgene.Baf.Server.Logging;
 using Arrowgene.Baf.Server.Packet;
 using Arrowgene.Logging;
 
@@ -13,6 +14,7 @@ namespace Arrowgene.Baf
 
         static void Main(string[] args)
         {
+            LogProvider.Configure<BafLogger>(Setting);
             LogProvider.OnLogWrite += LogProviderOnOnLogWrite;
             LogProvider.Start();
 
