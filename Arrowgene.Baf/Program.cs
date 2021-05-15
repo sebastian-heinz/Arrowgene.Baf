@@ -36,7 +36,7 @@ namespace Arrowgene.Baf
             {
                 DataArchive archive = new DataArchive();
                 archive.Load(args[0]);
-                archive.SaveAll(args[1]);
+                archive.ExtractAll(args[1]);
             }
         }
 
