@@ -24,20 +24,44 @@ namespace Arrowgene.Baf
                 server.Start();
                 Console.ReadKey();
                 server.Stop();
+                return;
             }
 
-            if (args.Length == 1)
+            if (args.Length > 1)
             {
-                DataArchive archive = new DataArchive();
-                archive.Load(args[0]);
-            }
+                string operation = args[0].ToLower();
+                switch (operation)
+                {
+                    case "extract":
+                    {
+                        if (args.Length == 2)
+                        {
+                            DataArchive archive = new DataArchive();
+                            archive.Load(args[1]);
+                        }
+                        else if (args.Length == 3)
+                        {
+                            DataArchive archive = new DataArchive();
+                            archive.Load(args[1]);
+                            archive.ExtractAll(args[2]);
+                        }
 
-            if (args.Length == 2)
-            {
-                DataArchive archive = new DataArchive();
-                archive.Load(args[0]);
-                archive.ExtractAll(args[1]);
+                        break;
+                    }
+                    case "save":
+                    {
+                        if (args.Length == 4)
+                        {
+                            DataArchive archive = new DataArchive();
+                            archive.AddFolder(args[1]);
+                            archive.Save(args[2],args[3]);
+                        }
+                        break;
+                    }
+                }
             }
+            
+            LogProvider.Stop();
         }
 
         private static void LogProviderOnOnLogWrite(object sender, LogWriteEventArgs e)

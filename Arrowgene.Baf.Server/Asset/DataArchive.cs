@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Arrowgene.Buffers;
 using Arrowgene.Logging;
@@ -11,6 +10,9 @@ namespace Arrowgene.Baf.Server.Asset
         private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(DataArchive));
         private static readonly byte[] Password = {0x61, 0xf9, 0x53, 0x7c};
         private static readonly int NoNameOffset = -1;
+        private static readonly int EntrySize = 16;
+        public static readonly char BafDirectorySeparatorChar = '\\';
+        public static readonly string BafMagic = "SDO";
 
         private FileInfo _saiFile;
         private FileInfo _sacFile;
@@ -61,47 +63,42 @@ namespace Arrowgene.Baf.Server.Asset
             IBuffer saiBuffer = new StreamBuffer(saiData);
             saiBuffer.SetPositionStart();
 
-            saiBuffer.ReadInt32();
-            int entrySize = saiBuffer.ReadInt32() * 16;
+            string magic = saiBuffer.ReadCString();
+            if (BafMagic != magic)
+            {
+                Logger.Error($"Invalid Magic File Bytes: {magic}");
+                Reset();
+                return false;
+            }
+
+            int entries = saiBuffer.ReadInt32();
             int fileNameSize = saiBuffer.ReadInt32();
-            saiBuffer.ReadInt32();
-            byte[] dataAttribs = saiBuffer.ReadBytes(entrySize);
+            int unk1 = saiBuffer.ReadInt32();
+            byte[] dataAttribs = saiBuffer.ReadBytes(entries * EntrySize);
             dataAttribs = DecryptData(Password, dataAttribs);
             byte[] dataFileNames = saiBuffer.ReadBytes(fileNameSize);
             dataFileNames = DecryptData(Password, dataFileNames);
 
-            string tmp = "";
+            IBuffer nameBuffer = new StreamBuffer(dataFileNames);
             IBuffer attributeBuffer = new StreamBuffer(dataAttribs);
             attributeBuffer.SetPositionStart();
-            for (int a = 0; a < attributeBuffer.Size / 16; a++)
+
+            for (int i = 0; i < entries; i++)
             {
                 DataArchiveFile item = new DataArchiveFile();
                 item.Id = attributeBuffer.ReadInt32();
                 item.Size = attributeBuffer.ReadInt32();
                 item.Offset = attributeBuffer.ReadInt32();
                 item.NameOffset = attributeBuffer.ReadInt32();
-                for (int i = item.NameOffset; i < dataFileNames.Length; i++)
-                {
-                    if (dataFileNames[i] != 0)
-                        tmp += (char) dataFileNames[i];
-                    else
-                    {
-                        int lastSlash = tmp.LastIndexOf("\\", StringComparison.Ordinal);
-                        if (lastSlash >= 0)
-                        {
-                            item.Path = tmp.Substring(0, lastSlash + 1);
-                            item.Name = tmp.Substring(lastSlash + 1);
-                        }
-                        else
-                        {
-                            item.Path = "";
-                            item.Name = tmp;
-                        }
 
-                        tmp = "";
-                        break;
-                    }
-                }
+                nameBuffer.Position = item.NameOffset;
+                string filePath = nameBuffer.ReadCString();
+                filePath = filePath.Replace(BafDirectorySeparatorChar, Path.DirectorySeparatorChar);
+                string fileName = Path.GetFileName(filePath);
+                string directoryName = Path.GetDirectoryName(filePath);
+
+                item.Name = fileName;
+                item.Path = directoryName;
 
                 _files.Add(item);
             }
@@ -114,19 +111,59 @@ namespace Arrowgene.Baf.Server.Asset
             return true;
         }
 
-        public bool AddFile(byte[] fileData, string path, string name)
+        public bool AddFile(string rootDirectory, string filePath)
         {
+            if (_sacBuffer == null)
+            {
+                _sacBuffer = new StreamBuffer();
+            }
+
+            FileInfo fileInfo = new FileInfo(filePath);
+            if (!fileInfo.Exists)
+            {
+                return false;
+            }
+
+            byte[] fileData = File.ReadAllBytes(fileInfo.FullName);
             int offset = _sacBuffer.Position;
             _sacBuffer.WriteBytes(fileData);
-            
+
+
+            string bafFilePath = filePath.Replace(rootDirectory, "");
+            string fileName = Path.GetFileName(bafFilePath);
+            string directoryName = Path.GetDirectoryName(bafFilePath);
+            if (directoryName == null)
+            {
+                directoryName = "";
+            }
+            else
+            {
+                directoryName = directoryName.Replace(Path.DirectorySeparatorChar, BafDirectorySeparatorChar);
+                if (directoryName.StartsWith(BafDirectorySeparatorChar))
+                {
+                    directoryName = directoryName.Substring(1);
+                }
+            }
+
             DataArchiveFile file = new DataArchiveFile();
             file.Size = fileData.Length;
-            file.Name = name;
-            file.Path = path;
+            file.Name = fileName;
+            file.Path = directoryName;
             file.Offset = offset;
             file.NameOffset = NoNameOffset;
-            
+
             _files.Add(file);
+            return true;
+        }
+
+        public bool AddFolder(string path)
+        {
+            string[] files = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+            foreach (string filePath in files)
+            {
+                AddFile(path, filePath);
+            }
+
             return true;
         }
 
@@ -138,7 +175,7 @@ namespace Arrowgene.Baf.Server.Asset
                 Reset();
                 return false;
             }
-            
+
             string saiPath = directory + fileName + ".sai";
             if (File.Exists(saiPath))
             {
@@ -146,6 +183,7 @@ namespace Arrowgene.Baf.Server.Asset
                 Reset();
                 return false;
             }
+
             _saiFile = new FileInfo(saiPath);
 
             string sacPath = directory + fileName + ".sac";
@@ -155,6 +193,7 @@ namespace Arrowgene.Baf.Server.Asset
                 Reset();
                 return false;
             }
+
             _sacFile = new FileInfo(sacPath);
 
             if (_files.Count <= 0)
@@ -170,28 +209,37 @@ namespace Arrowgene.Baf.Server.Asset
                 Reset();
                 return false;
             }
-            
+
             IBuffer attributeBuffer = new StreamBuffer();
             IBuffer nameBuffer = new StreamBuffer();
+            int entries = 0;
             foreach (DataArchiveFile file in _files)
             {
                 file.NameOffset = nameBuffer.Position;
-                nameBuffer.WriteString(file.Path + file.Name);
+                string filePath = "";
+                if (file.Path.Length > 0)
+                {
+                    filePath += file.Path + BafDirectorySeparatorChar;
+                }
+
+                filePath += file.Name;
+                nameBuffer.WriteCString(filePath);
                 attributeBuffer.WriteInt32(file.Id);
                 attributeBuffer.WriteInt32(file.Size);
                 attributeBuffer.WriteInt32(file.Offset);
                 attributeBuffer.WriteInt32(file.NameOffset);
+                entries++;
             }
-            
+
             byte[] dataAttribs = attributeBuffer.GetAllBytes();
             byte[] dataFileNames = nameBuffer.GetAllBytes();
-            
+
             dataAttribs = EncryptData(Password, dataAttribs);
             dataFileNames = EncryptData(Password, dataFileNames);
-            
+
             IBuffer saiBuffer = new StreamBuffer();
-            saiBuffer.WriteInt32(0);
-            saiBuffer.WriteInt32(dataAttribs.Length / 16);
+            saiBuffer.WriteCString(BafMagic);
+            saiBuffer.WriteInt32(entries);
             saiBuffer.WriteInt32(dataFileNames.Length);
             saiBuffer.WriteInt32(0);
             saiBuffer.WriteBytes(dataAttribs);
@@ -284,7 +332,7 @@ namespace Arrowgene.Baf.Server.Asset
             {
                 lKey = (lKey * 0x3d09) & 0xffffffffL;
                 ltmpKey = lKey >> 0x10;
-                decrypted[i] = (byte) (data[i] - (byte) (ltmpKey & 0xff));
+                decrypted[i] = (byte) (data[i] + (byte) (ltmpKey & 0xff));
             }
 
             return decrypted;
