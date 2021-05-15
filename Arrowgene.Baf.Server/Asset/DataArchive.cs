@@ -17,6 +17,7 @@ namespace Arrowgene.Baf.Server.Asset
         private FileInfo _saiFile;
         private FileInfo _sacFile;
         private IBuffer _sacBuffer;
+        private int _currentId;
         private bool _loaded;
         private readonly List<DataArchiveFile> _files;
 
@@ -29,6 +30,7 @@ namespace Arrowgene.Baf.Server.Asset
         private void Reset()
         {
             _files.Clear();
+            _currentId = 0;
             _loaded = false;
             _sacBuffer = null;
             _sacFile = null;
@@ -90,6 +92,11 @@ namespace Arrowgene.Baf.Server.Asset
                 item.Size = attributeBuffer.ReadInt32();
                 item.Offset = attributeBuffer.ReadInt32();
                 item.NameOffset = attributeBuffer.ReadInt32();
+                
+                if (item.Id > _currentId)
+                {
+                    _currentId = item.Id;
+                }
 
                 nameBuffer.Position = item.NameOffset;
                 string filePath = nameBuffer.ReadCString();
@@ -99,7 +106,7 @@ namespace Arrowgene.Baf.Server.Asset
 
                 item.Name = fileName;
                 item.Path = directoryName;
-
+                
                 _files.Add(item);
             }
 
@@ -146,13 +153,17 @@ namespace Arrowgene.Baf.Server.Asset
             }
 
             DataArchiveFile file = new DataArchiveFile();
+            file.Id = _currentId;
             file.Size = fileData.Length;
             file.Name = fileName;
             file.Path = directoryName;
             file.Offset = offset;
             file.NameOffset = NoNameOffset;
-
+            
             _files.Add(file);
+
+            _currentId++;
+            
             return true;
         }
 
@@ -313,6 +324,7 @@ namespace Arrowgene.Baf.Server.Asset
 
             for (int i = 0; i < decrypted.Length; i++)
             {
+                // ADDR:0x408704 RVA: 0x8704
                 lKey = (lKey * 0x3d09) & 0xffffffffL;
                 ltmpKey = lKey >> 0x10;
                 decrypted[i] = (byte) (data[i] - (byte) (ltmpKey & 0xff));
