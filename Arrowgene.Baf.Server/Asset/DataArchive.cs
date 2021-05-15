@@ -320,14 +320,13 @@ namespace Arrowgene.Baf.Server.Asset
             byte[] decrypted = new byte[data.Length];
             long lKey = (long) ((key[0] & 0xff) | ((key[1] & 0xff) << 8) | ((key[2] & 0xff) << 16) |
                                 ((key[3] & 0xff) << 24));
-            long ltmpKey;
 
             for (int i = 0; i < decrypted.Length; i++)
             {
                 // ADDR:0x408704 RVA: 0x8704
                 lKey = (lKey * 0x3d09) & 0xffffffffL;
-                ltmpKey = lKey >> 0x10;
-                decrypted[i] = (byte) (data[i] - (byte) (ltmpKey & 0xff));
+                long tmpKey = lKey >> 0x10;
+                decrypted[i] = (byte) (data[i] - (byte) (tmpKey & 0xff));
             }
 
             return decrypted;
@@ -338,13 +337,13 @@ namespace Arrowgene.Baf.Server.Asset
             byte[] decrypted = new byte[data.Length];
             long lKey = (long) ((key[0] & 0xff) | ((key[1] & 0xff) << 8) | ((key[2] & 0xff) << 16) |
                                 ((key[3] & 0xff) << 24));
-            long ltmpKey;
 
             for (int i = 0; i < decrypted.Length; i++)
             {
+                // ADDR:0x408704 RVA: 0x8704
                 lKey = (lKey * 0x3d09) & 0xffffffffL;
-                ltmpKey = lKey >> 0x10;
-                decrypted[i] = (byte) (data[i] + (byte) (ltmpKey & 0xff));
+                long tmpKey = lKey >> 0x10;
+                decrypted[i] = (byte) (data[i] + (byte) (tmpKey & 0xff));
             }
 
             return decrypted;
