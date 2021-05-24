@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Arrowgene.Buffers;
 using Arrowgene.Logging;
 
@@ -17,7 +18,6 @@ namespace Arrowgene.Baf.Server.Asset
         private FileInfo _saiFile;
         private FileInfo _sacFile;
         private IBuffer _sacBuffer;
-        private int _currentId;
         private bool _loaded;
         private readonly List<DataArchiveFile> _files;
 
@@ -30,7 +30,6 @@ namespace Arrowgene.Baf.Server.Asset
         private void Reset()
         {
             _files.Clear();
-            _currentId = 0;
             _loaded = false;
             _sacBuffer = null;
             _sacFile = null;
@@ -93,11 +92,6 @@ namespace Arrowgene.Baf.Server.Asset
                 item.Offset = attributeBuffer.ReadInt32();
                 item.NameOffset = attributeBuffer.ReadInt32();
                 
-                if (item.Id > _currentId)
-                {
-                    _currentId = item.Id;
-                }
-
                 nameBuffer.Position = item.NameOffset;
                 string filePath = nameBuffer.ReadCString();
                 filePath = filePath.Replace(BafDirectorySeparatorChar, Path.DirectorySeparatorChar);
@@ -153,7 +147,7 @@ namespace Arrowgene.Baf.Server.Asset
             }
 
             DataArchiveFile file = new DataArchiveFile();
-            file.Id = _currentId;
+            file.Id = GetPathIndex(bafFilePath);
             file.Size = fileData.Length;
             file.Name = fileName;
             file.Path = directoryName;
@@ -162,8 +156,6 @@ namespace Arrowgene.Baf.Server.Asset
             
             _files.Add(file);
 
-            _currentId++;
-            
             return true;
         }
 
@@ -224,7 +216,7 @@ namespace Arrowgene.Baf.Server.Asset
             IBuffer attributeBuffer = new StreamBuffer();
             IBuffer nameBuffer = new StreamBuffer();
             int entries = 0;
-            foreach (DataArchiveFile file in _files)
+            foreach (DataArchiveFile file in _files.OrderBy(f => f.Id))
             {
                 file.NameOffset = nameBuffer.Position;
                 string filePath = "";
@@ -347,6 +339,20 @@ namespace Arrowgene.Baf.Server.Asset
             }
 
             return decrypted;
+        }
+
+        private int GetPathIndex(string path)
+        {
+            int index = 0;
+            int offset = 0;
+
+            foreach (var pathChar in path)
+            {
+                index += pathChar - 32 << offset;
+                offset = offset < 20 ? offset + 5 : 0;
+            }
+
+            return index % 0xfff1;
         }
     }
 }
