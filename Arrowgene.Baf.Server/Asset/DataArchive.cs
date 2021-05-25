@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Arrowgene.Buffers;
 using Arrowgene.Logging;
 
@@ -91,7 +90,7 @@ namespace Arrowgene.Baf.Server.Asset
                 item.Size = attributeBuffer.ReadInt32();
                 item.Offset = attributeBuffer.ReadInt32();
                 item.NameOffset = attributeBuffer.ReadInt32();
-                
+
                 nameBuffer.Position = item.NameOffset;
                 string filePath = nameBuffer.ReadCString();
                 filePath = filePath.Replace(BafDirectorySeparatorChar, Path.DirectorySeparatorChar);
@@ -108,6 +107,16 @@ namespace Arrowgene.Baf.Server.Asset
             _sacBuffer = new StreamBuffer(sacData);
             _sacBuffer.SetPositionStart();
             _loaded = true;
+
+            // decrypted
+            StreamBuffer decSaiBuffer = new StreamBuffer();
+            decSaiBuffer.WriteCString(BafMagic);
+            decSaiBuffer.WriteInt32(entries);
+            decSaiBuffer.WriteInt32(dataFileNames.Length);
+            decSaiBuffer.WriteInt32(0);
+            decSaiBuffer.WriteBytes(dataAttribs);
+            decSaiBuffer.WriteBytes(dataFileNames);
+            File.WriteAllBytes(_saiFile.FullName + ".dec", decSaiBuffer.GetAllBytes());
 
             return true;
         }
@@ -129,13 +138,13 @@ namespace Arrowgene.Baf.Server.Asset
             int offset = _sacBuffer.Position;
             _sacBuffer.WriteBytes(fileData);
 
-
             string bafFilePath = filePath.Replace(rootDirectory, "");
             string fileName = Path.GetFileName(bafFilePath);
             string directoryName = Path.GetDirectoryName(bafFilePath);
             if (directoryName == null)
             {
                 directoryName = "";
+                bafFilePath = fileName;
             }
             else
             {
@@ -144,8 +153,17 @@ namespace Arrowgene.Baf.Server.Asset
                 {
                     directoryName = directoryName.Substring(1);
                 }
-            }
 
+                if (directoryName == string.Empty)
+                {
+                    bafFilePath = fileName;
+                }
+                else
+                {
+                    bafFilePath = directoryName + BafDirectorySeparatorChar + fileName;
+                }
+            }
+            
             DataArchiveFile file = new DataArchiveFile();
             file.Id = GetPathIndex(bafFilePath);
             file.Size = fileData.Length;
@@ -153,8 +171,10 @@ namespace Arrowgene.Baf.Server.Asset
             file.Path = directoryName;
             file.Offset = offset;
             file.NameOffset = NoNameOffset;
-            
+
             _files.Add(file);
+
+            Logger.Info($"Add: {file.Id} {file.Path}{file.Name}");
 
             return true;
         }
@@ -162,9 +182,12 @@ namespace Arrowgene.Baf.Server.Asset
         public bool AddFolder(string path)
         {
             string[] files = Directory.GetFiles(path, "*", SearchOption.AllDirectories);
+
+            int idx = 1;
             foreach (string filePath in files)
             {
                 AddFile(path, filePath);
+                Logger.Info($"Progress: {idx++}/{files.Length}");
             }
 
             return true;
@@ -216,7 +239,9 @@ namespace Arrowgene.Baf.Server.Asset
             IBuffer attributeBuffer = new StreamBuffer();
             IBuffer nameBuffer = new StreamBuffer();
             int entries = 0;
-            foreach (DataArchiveFile file in _files.OrderBy(f => f.Id))
+
+            _files.Sort((a, b) => a.Id.CompareTo(b.Id));
+            foreach (DataArchiveFile file in _files)
             {
                 file.NameOffset = nameBuffer.Position;
                 string filePath = "";
@@ -251,6 +276,16 @@ namespace Arrowgene.Baf.Server.Asset
             File.WriteAllBytes(_saiFile.FullName, saiBuffer.GetAllBytes());
             File.WriteAllBytes(_sacFile.FullName, _sacBuffer.GetAllBytes());
 
+            // decrypted
+            StreamBuffer decSaiBuffer = new StreamBuffer();
+            decSaiBuffer.WriteCString(BafMagic);
+            decSaiBuffer.WriteInt32(entries);
+            decSaiBuffer.WriteInt32(dataFileNames.Length);
+            decSaiBuffer.WriteInt32(0);
+            decSaiBuffer.WriteBytes(attributeBuffer.GetAllBytes());
+            decSaiBuffer.WriteBytes(nameBuffer.GetAllBytes());
+            File.WriteAllBytes(_saiFile.FullName + ".dec", decSaiBuffer.GetAllBytes());
+
             return true;
         }
 
@@ -280,6 +315,8 @@ namespace Arrowgene.Baf.Server.Asset
             string path = Path.Combine(dir, file.Name);
             File.WriteAllBytes(path, fileData);
 
+            Logger.Info($"Extract: {file.Id} {file.Path}{file.Name}");
+
             return true;
         }
 
@@ -300,8 +337,8 @@ namespace Arrowgene.Baf.Server.Asset
             int idx = 1;
             foreach (DataArchiveFile file in _files)
             {
-                Logger.Info($"Saving: ({idx++}/{_files.Count}) {file.Path}{file.Name}");
                 Extract(file, destinationDirectory);
+                Logger.Info($"Progress: {idx++}/{_files.Count}");
             }
 
             return true;

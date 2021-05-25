@@ -18,3 +18,21 @@ including proof and it will be removed.
 ```
 start baf.bin 1 a b c:d 127.0.0.1 3232 arrowgene.net
 ```
+
+## Assets
+
+Datas.sai
+- lookup table
+
+| bytes                     | type             | description                      |  
+| ------------------------- |------------------|----------------------------------| 
+| 4 bytes                   | c-string         | magic bytes "SDO"                |
+| 4 bytes                   | int              | number of attribute blocks       |
+| 4 bytes                   | int              | size in bytes of file name block |
+| 4 bytes                   | int              | unknown                          |
+| 16 * num of entries bytes | attribute blocks | a block consists of 16 bytes     |
+| file name block bytes     | c-strings        |                                  |
+
+
+Datas.sac
+- raw data
