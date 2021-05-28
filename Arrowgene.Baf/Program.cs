@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Arrowgene.Baf.Server.Asset;
 using Arrowgene.Baf.Server.Core;
 using Arrowgene.Baf.Server.Logging;
@@ -22,8 +23,30 @@ namespace Arrowgene.Baf
             {
                 BafServer server = new BafServer(Setting);
                 server.Start();
-                Console.ReadKey();
-                server.Stop();
+
+                bool read = true;
+                while (read)
+                {
+                    ConsoleKeyInfo key = Console.ReadKey();
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.E:
+                        {
+                            Console.WriteLine("Exiting...");
+                            read = false;
+                            server.Stop();
+                            break;
+                        }
+                        case ConsoleKey.R:
+                        {
+                            Console.WriteLine("Reloading Handler...");
+                            DirectoryInfo di = new DirectoryInfo("/Users/railgun/dev/Arrowgene.Baf/Arrowgene.Baf.Server/PacketHandle");
+                            server.ReLoadHandler(di);
+                            Console.WriteLine("Done");
+                            break;
+                        }
+                    }
+                }
                 return;
             }
 

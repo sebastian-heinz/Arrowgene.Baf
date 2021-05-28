@@ -1,5 +1,7 @@
+using System.IO;
 using System.Net;
 using Arrowgene.Baf.Server.PacketHandle;
+using Arrowgene.Baf.Server.Scripting;
 using Arrowgene.Logging;
 using Arrowgene.Networking.Tcp.Server.AsyncEvent;
 
@@ -12,12 +14,14 @@ namespace Arrowgene.Baf.Server.Core
         private readonly AsyncEventServer _server;
         private readonly BafQueueConsumer _consumer;
         private readonly BafSetting _setting;
+        private readonly BafScriptEngine _scriptEngine;
 
         public BafServer(BafSetting setting)
         {
             _setting = new BafSetting(setting);
             _consumer = new BafQueueConsumer(_setting.ServerSetting);
-            
+            _scriptEngine = new BafScriptEngine();
+
             _consumer.AddHandler(new UnknownHandle());
             _consumer.AddHandler(new InitialHandle());
             _consumer.AddHandler(new LoginHandle());
@@ -29,7 +33,7 @@ namespace Arrowgene.Baf.Server.Core
             _consumer.AddHandler(new JoinRoomHandle());
             _consumer.AddHandler(new LobbyProfileHandle());
             _consumer.AddHandler(new RoomListHandle());
-            
+
             _server = new AsyncEventServer(
                 IPAddress.Any,
                 3232,
@@ -38,11 +42,16 @@ namespace Arrowgene.Baf.Server.Core
             );
         }
 
+        public void ReLoadHandler(DirectoryInfo directoryInfo)
+        {
+            _scriptEngine.ReLoadHandler(directoryInfo, _consumer);
+        }
+
         public void Start()
         {
             _server.Start();
         }
-        
+
         public void Stop()
         {
             _server.Stop();

@@ -13,7 +13,16 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override void Handle(BafClient client, BafPacket packet)
         {
+            IBuffer buffer = packet.CreateBuffer();
+            int number = buffer.ReadInt32();
+            int unk = buffer.ReadInt32();
+            
+            Logger.Debug($"Join Room: Number:{number}");
+            Logger.Debug($"unk:{unk}");
+            
             IBuffer b = new StreamBuffer();
+            
+            b.WriteInt32(number);
 
             b.WriteByte(0);
             b.WriteByte(0);
@@ -23,15 +32,6 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            
-            b.WriteByte(1);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0x25);
-            b.WriteByte(0);
-            b.WriteByte(0xD5);
-            b.WriteByte(7);
-            b.WriteByte(3);
 
             b.WriteByte(0);
             b.WriteByte(0);
@@ -57,7 +57,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
 
             BafPacket p = new BafPacket(PacketId.JoinRoomRes, b.GetAllBytes());
-            client.Send(p);
+           // client.Send(p);
         }
     }
 }
