@@ -2,6 +2,14 @@ namespace Arrowgene.Baf.Server.Model
 {
     public class Room
     {
+
+        public Room()
+        {
+            Name = null;
+            HasPassword = false;
+            Password = null;
+        }
+        
         public string Name { get; set; }
         public int Id { get; set; }
         public int SlotsAvailable { get; set; }

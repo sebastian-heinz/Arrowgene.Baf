@@ -19,10 +19,31 @@ namespace Arrowgene.Baf.Server.PacketHandle
         {
             IBuffer b = new StreamBuffer();
 
+            b.WriteInt32(0);
+            b.WriteCString(client.Character.Name);
+            b.WriteByte(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0); // cog Music
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteByte(0);
+            b.WriteInt32(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
          
             BafPacket p = new BafPacket(PacketId.LobbyProfileRes, b.GetAllBytes());
             client.Send(p);

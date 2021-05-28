@@ -19,32 +19,38 @@ namespace Arrowgene.Baf.Server.PacketHandle
         public override void Handle(BafClient client, BafPacket packet)
         {
             IBuffer b = new StreamBuffer();
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteCString(client.Character.Name);
             b.WriteByte(0);
+            b.WriteInt32(99); // level
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteCString("TITLE");
+            b.WriteCString("SELF INTRODUCTION");
             b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteCString("test");
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
+            b.WriteInt32(20); // friends
+            b.WriteCString("AGE");
+            b.WriteCString("START SIGN");            
+            b.WriteCString("CITY");
+            b.WriteCString("DISCORD");
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+   
             BafPacket p = new BafPacket(PacketId.ProfileRes, b.GetAllBytes());
-            //   client.Send(p);
+               client.Send(p);
         }
 
     }

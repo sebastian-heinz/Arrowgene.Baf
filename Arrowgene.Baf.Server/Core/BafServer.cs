@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using Arrowgene.Baf.Server.Model;
 using Arrowgene.Baf.Server.PacketHandle;
 using Arrowgene.Baf.Server.Scripting;
 using Arrowgene.Logging;
@@ -11,16 +13,31 @@ namespace Arrowgene.Baf.Server.Core
     {
         private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(BafServer));
 
+        public const short ChannelTabs = 3;
+        public const short MaxChannels = 5;
+
         private readonly AsyncEventServer _server;
         private readonly BafQueueConsumer _consumer;
         private readonly BafSetting _setting;
         private readonly BafScriptEngine _scriptEngine;
+        private readonly Channel[][] _channels;
 
         public BafServer(BafSetting setting)
         {
             _setting = new BafSetting(setting);
             _consumer = new BafQueueConsumer(_setting.ServerSetting);
             _scriptEngine = new BafScriptEngine();
+            _channels = new Channel[ChannelTabs][];
+            for (short channelTab = 0; channelTab < ChannelTabs; channelTab++)
+            {
+                _channels[channelTab] = new Channel[MaxChannels];
+                for (short channelNumber = 0; channelNumber < MaxChannels; channelNumber++)
+                {
+                    // 0 = easy ; 1 = hard; 2 = active channel
+                    _channels[channelTab][channelNumber] = new Channel(channelTab, channelNumber,
+                        $"Channel {channelTab}-{channelNumber}");
+                }
+            }
 
             _consumer.AddHandler(new UnknownHandle(this));
             _consumer.AddHandler(new InitialHandle(this));
@@ -40,6 +57,45 @@ namespace Arrowgene.Baf.Server.Core
                 _consumer,
                 _setting.ServerSetting
             );
+        }
+
+        public Channel GetChannel(short channelTab, short channelNumber)
+        {
+            if (channelTab >= ChannelTabs || channelTab < 0)
+            {
+                Logger.Error($"GetChannel: Invalid ChannelTab: {channelTab} ({channelTab}-{channelNumber})");
+                return null;
+            }
+
+            if (channelNumber >= MaxChannels || channelNumber < 0)
+            {
+                Logger.Error($"GetChannel: Invalid ChannelNumber: {channelNumber} ({channelTab}-{channelNumber})");
+                return null;
+            }
+
+            return _channels[channelTab][channelNumber];
+        }
+
+        public List<Channel> GetChannels(short channelTab)
+        {
+            if (channelTab >= ChannelTabs || channelTab < 0)
+            {
+                Logger.Error($"GetChannels: Invalid ChannelTab: {channelTab}");
+                return null;
+            }
+
+            return new List<Channel>(_channels[channelTab]);
+        }
+
+        public List<Channel> GetChannels()
+        {
+            List<Channel> channel = new List<Channel>();
+            for (short channelTab = 0; channelTab < ChannelTabs; channelTab++)
+            {
+                channel.AddRange(GetChannels(channelTab));
+            }
+
+            return channel;
         }
 
         public void ReLoadHandler(DirectoryInfo directoryInfo)

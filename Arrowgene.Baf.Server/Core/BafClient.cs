@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Arrowgene.Baf.Server.Logging;
+using Arrowgene.Baf.Server.Model;
 using Arrowgene.Baf.Server.Packet;
 using Arrowgene.Logging;
 using Arrowgene.Networking.Tcp;
@@ -19,9 +20,15 @@ namespace Arrowgene.Baf.Server.Core
             _socket = clientSocket;
             _packetFactory = new PacketFactory(this);
             Identity = _socket.Identity;
+            Room = null;
+            Channel = null;
         }
 
         public string Identity { get; }
+        
+        public Room Room { get; set; }
+        public Channel Channel { get; set; }
+        public Character Character { get; set; }
 
         public List<BafPacket> Receive(byte[] data)
         {
