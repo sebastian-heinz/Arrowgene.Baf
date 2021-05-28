@@ -11,6 +11,10 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override PacketId Id => PacketId.JoinChannelReq;
 
+        public JoinChannelHandle(BafServer server) : base(server)
+        {
+        }
+        
         public override void Handle(BafClient client, BafPacket packet)
         {
             IBuffer b = new StreamBuffer();
@@ -36,5 +40,6 @@ namespace Arrowgene.Baf.Server.PacketHandle
             BafPacket p = new BafPacket(PacketId.JoinChannelRes, b.GetAllBytes());
             client.Send(p);
         }
+
     }
 }

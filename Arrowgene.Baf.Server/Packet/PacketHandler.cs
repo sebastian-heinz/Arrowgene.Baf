@@ -4,8 +4,11 @@ namespace Arrowgene.Baf.Server.Packet
 {
     public abstract class PacketHandler : IPacketHandler
     {
-        protected PacketHandler() 
+        protected BafServer _server;
+        
+        protected PacketHandler(BafServer server)
         {
+            _server = server;
         }
 
         public abstract PacketId Id { get; }

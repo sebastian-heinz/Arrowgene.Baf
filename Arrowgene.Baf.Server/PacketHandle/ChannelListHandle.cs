@@ -14,6 +14,10 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override PacketId Id => PacketId.ChannelListReq; 
 
+        public ChannelListHandle(BafServer server) : base(server)
+        {
+        }
+        
         public override void Handle(BafClient client, BafPacket packet)
         {
            
@@ -25,31 +29,9 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteInt16(0); // number 1XX
             b.WriteInt32(0); // max load
             b.WriteInt32(0); // current load
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            
             
             BafPacket p = new BafPacket(PacketId.ChannelListRes,  b.GetAllBytes());
             client.Send(p);
-            
-   
-            
         }
 
     }

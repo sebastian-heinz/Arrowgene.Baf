@@ -11,9 +11,14 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override PacketId Id => PacketId.Unknown;
 
+        public UnknownHandle(BafServer server) : base(server)
+        {
+        }
+        
         public override void Handle(BafClient client, BafPacket packet)
         {
             Logger.Info(client, $"Unhandled PacketId:{packet.IdValue} Hex:{packet.IdValue:X}");
         }
+
     }
 }

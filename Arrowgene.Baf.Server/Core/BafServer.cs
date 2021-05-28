@@ -22,17 +22,17 @@ namespace Arrowgene.Baf.Server.Core
             _consumer = new BafQueueConsumer(_setting.ServerSetting);
             _scriptEngine = new BafScriptEngine();
 
-            _consumer.AddHandler(new UnknownHandle());
-            _consumer.AddHandler(new InitialHandle());
-            _consumer.AddHandler(new LoginHandle());
-            _consumer.AddHandler(new ChannelListHandle());
-            _consumer.AddHandler(new JoinChannelHandle());
-            _consumer.AddHandler(new CreateRoomHandle());
-            _consumer.AddHandler(new ChannelChatHandle());
-            _consumer.AddHandler(new ProfileHandle());
-            _consumer.AddHandler(new JoinRoomHandle());
-            _consumer.AddHandler(new LobbyProfileHandle());
-            _consumer.AddHandler(new RoomListHandle());
+            _consumer.AddHandler(new UnknownHandle(this));
+            _consumer.AddHandler(new InitialHandle(this));
+            _consumer.AddHandler(new LoginHandle(this));
+            _consumer.AddHandler(new ChannelListHandle(this));
+            _consumer.AddHandler(new JoinChannelHandle(this));
+            _consumer.AddHandler(new CreateRoomHandle(this));
+            _consumer.AddHandler(new ChannelChatHandle(this));
+            _consumer.AddHandler(new ProfileHandle(this));
+            _consumer.AddHandler(new JoinRoomHandle(this));
+            _consumer.AddHandler(new LobbyProfileHandle(this));
+            _consumer.AddHandler(new RoomListHandle(this));
 
             _server = new AsyncEventServer(
                 IPAddress.Any,
@@ -44,7 +44,7 @@ namespace Arrowgene.Baf.Server.Core
 
         public void ReLoadHandler(DirectoryInfo directoryInfo)
         {
-            _scriptEngine.ReLoadHandler(directoryInfo, _consumer);
+            _scriptEngine.ReLoadHandler(directoryInfo, _consumer, this);
         }
 
         public void Start()

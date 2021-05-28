@@ -12,6 +12,10 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override PacketId Id => PacketId.CreateRoomReq;
 
+        public CreateRoomHandle(BafServer server) : base(server)
+        {
+        }
+        
         public override void Handle(BafClient client, BafPacket packet)
         {
             IBuffer buffer = packet.CreateBuffer();
@@ -35,29 +39,19 @@ namespace Arrowgene.Baf.Server.PacketHandle
             Logger.Debug($"unk4:{unk4}");
 
             IBuffer b = new StreamBuffer();
-            b.WriteInt16(1); // room number 0 - 299 (001 - 300)
-            b.WriteByte(0);
-            b.WriteByte(0);
+            b.WriteInt32(1); // room number 0 - 299 (001 - 300)
             b.WriteCString(name);
             b.WriteByte((byte)team);
             b.WriteByte((byte)key);
             b.WriteByte(hasPassword ? (byte)1 : (byte)0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
+            b.WriteInt32(0); // unknown
             b.WriteByte(allowSpectators? (byte)1 : (byte)0); // spectator 0=false 1 = true
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(70); // battery
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-
+            b.WriteInt32(0); // battery
+            b.WriteByte(0); // unknown
+            
             BafPacket p = new BafPacket(PacketId.CreateRoomRes, b.GetAllBytes());
             client.Send(p);
         }
+
     }
 }

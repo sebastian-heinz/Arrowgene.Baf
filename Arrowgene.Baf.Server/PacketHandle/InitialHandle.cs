@@ -11,11 +11,16 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override PacketId Id => PacketId.InitialReq;
 
+        public InitialHandle(BafServer server) : base(server)
+        {
+        }
+        
         public override void Handle(BafClient client, BafPacket packet)
         {
             IBuffer b = new StreamBuffer();
             BafPacket p = new BafPacket(PacketId.InitialRes, b.GetAllBytes());
             client.Send(p);
         }
+
     }
 }

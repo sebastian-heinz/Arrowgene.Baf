@@ -34,14 +34,14 @@ namespace Arrowgene.Baf.Server.Scripting
         /// </summary>
         /// <param name="directoryInfo">Script directory</param>
         /// <param name="consumer">Instance of BafQueueConsumer</param>
-        public void ReLoadHandler(DirectoryInfo directoryInfo, BafQueueConsumer consumer)
+        public void ReLoadHandler(DirectoryInfo directoryInfo, BafQueueConsumer consumer, BafServer server)
         {
             FileInfo[] scripts = directoryInfo.GetFiles("*.cs", SearchOption.AllDirectories);
             foreach (FileInfo script in scripts)
             {
                 string code = File.ReadAllText(script.FullName);
                 ScriptTask scriptTask = _engine.CreateTask(script.FullName, code);
-                IPacketHandler handler = scriptTask.CreateInstance<IPacketHandler>();
+                IPacketHandler handler = scriptTask.CreateInstance<IPacketHandler>(server);
                 if (handler != null)
                 {
                     Logger.Info($"Adding Handler: {handler.Id}");

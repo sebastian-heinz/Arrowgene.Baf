@@ -12,6 +12,10 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override PacketId Id => PacketId.LoginReq;
 
+        public LoginHandle(BafServer server) : base(server)
+        {
+        }
+        
         public override void Handle(BafClient client, BafPacket packet)
         {
             byte[] data = packet.Data;
@@ -66,6 +70,6 @@ namespace Arrowgene.Baf.Server.PacketHandle
             BafPacket p = new BafPacket(PacketId.LoginRes,  b.GetAllBytes());
             client.Send(p);
         }
-        
+
     }
 }

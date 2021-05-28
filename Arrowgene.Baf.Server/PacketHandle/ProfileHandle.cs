@@ -12,6 +12,10 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override PacketId Id => PacketId.ProfileReq;
 
+        public ProfileHandle(BafServer server) : base(server)
+        {
+        }
+        
         public override void Handle(BafClient client, BafPacket packet)
         {
             IBuffer b = new StreamBuffer();
@@ -42,5 +46,6 @@ namespace Arrowgene.Baf.Server.PacketHandle
             BafPacket p = new BafPacket(PacketId.ProfileRes, b.GetAllBytes());
             //   client.Send(p);
         }
+
     }
 }

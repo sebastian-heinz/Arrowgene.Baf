@@ -12,6 +12,10 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override PacketId Id => PacketId.ChannelChatReq;
 
+        public ChannelChatHandle(BafServer server) : base(server)
+        {
+        }
+        
         public override void Handle(BafClient client, BafPacket packet)
         {
             IBuffer buffer = packet.CreateBuffer();
@@ -24,5 +28,6 @@ namespace Arrowgene.Baf.Server.PacketHandle
             BafPacket p = new BafPacket(PacketId.ChannelChatRes, b.GetAllBytes());
             client.Send(p);
         }
+
     }
 }

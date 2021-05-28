@@ -11,6 +11,10 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override PacketId Id => PacketId.JoinRoomReq;
 
+        public JoinRoomHandle(BafServer server) : base(server)
+        {
+        }
+        
         public override void Handle(BafClient client, BafPacket packet)
         {
             IBuffer buffer = packet.CreateBuffer();
@@ -21,43 +25,27 @@ namespace Arrowgene.Baf.Server.PacketHandle
             Logger.Debug($"unk:{unk}");
             
             IBuffer b = new StreamBuffer();
-            
+
             b.WriteInt32(number);
-
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteInt32(0);
+            b.WriteCString("name");
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteByte(0);
+            b.WriteByte(0);
+            b.WriteInt32(0);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteByte(0);
-            
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-
+            b.WriteCString("name 3");
+            b.WriteInt32(0);
+            b.WriteInt32(0);
 
             BafPacket p = new BafPacket(PacketId.JoinRoomRes, b.GetAllBytes());
-           // client.Send(p);
+            client.Send(p);
         }
+
     }
 }
