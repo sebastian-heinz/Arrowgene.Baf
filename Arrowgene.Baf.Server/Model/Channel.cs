@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Arrowgene.Baf.Server.Model
 {
     public class Channel
@@ -72,6 +74,11 @@ namespace Arrowgene.Baf.Server.Model
             {
                 return _rooms[roomId];
             }
+        }
+        
+        public List<Room> GetRooms()
+        {
+            return new List<Room>(_rooms);
         }
     }
 }

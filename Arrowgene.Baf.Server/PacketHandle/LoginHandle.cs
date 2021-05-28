@@ -38,38 +38,71 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
             IBuffer b = new StreamBuffer();
             b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteCString("TESTA");
+            b.WriteCString("TESTB");
+            b.WriteByte(0);
+            b.WriteByte(0);
+            
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            
+            b.WriteCString("TESTC");
+            b.WriteCString("TESTD");
+            b.WriteCString("TESTE");
+            b.WriteCString("TESTF");
+            b.WriteCString("TESTG");
+            
+            b.WriteByte(0);
+            b.WriteByte(0);
+            
+            b.WriteCString("TESTH");
+            
+            b.WriteByte(0);
+            
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            b.WriteInt32(0);
 
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
+            
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-            b.WriteByte(0);
-
-
+            
+            
+            b.WriteCString("TESTI");
+            b.WriteCString("TESTJ");
+            
+            b.WriteInt32(0);
+            b.WriteInt32(0);
+            
             BafPacket p = new BafPacket(PacketId.LoginRes, b.GetAllBytes());
             client.Send(p);
         }
