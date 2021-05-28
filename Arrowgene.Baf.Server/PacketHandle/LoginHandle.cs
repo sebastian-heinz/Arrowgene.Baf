@@ -41,7 +41,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteCString("TESTA");
-            b.WriteCString("TESTB");
+            b.WriteCString(character.Name);
             b.WriteByte(0);
             b.WriteByte(0);
             

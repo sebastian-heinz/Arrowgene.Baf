@@ -26,7 +26,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
             
             IBuffer b = new StreamBuffer();
 
-            b.WriteInt32(number);
+            b.WriteInt32(0); // TODO
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteInt32(0);

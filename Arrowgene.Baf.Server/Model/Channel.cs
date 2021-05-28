@@ -39,6 +39,7 @@ namespace Arrowgene.Baf.Server.Model
                         room = new Room();
                         _rooms[i] = room;
                         room.Id = i;
+                        break;
                     }
                 }
             }
@@ -75,10 +76,25 @@ namespace Arrowgene.Baf.Server.Model
                 return _rooms[roomId];
             }
         }
-        
+
         public List<Room> GetRooms()
         {
-            return new List<Room>(_rooms);
+            List<Room> rooms = new List<Room>();
+            lock (_channelLock)
+            {
+                for (int i = 0; i < MaxRooms; i++)
+                {
+                    Room room = _rooms[i];
+                    if (room == null)
+                    {
+                        continue;
+                    }
+
+                    rooms.Add(room);
+                }
+            }
+
+            return rooms;
         }
     }
 }

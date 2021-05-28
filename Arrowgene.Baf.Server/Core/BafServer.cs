@@ -84,7 +84,19 @@ namespace Arrowgene.Baf.Server.Core
                 return null;
             }
 
-            return new List<Channel>(_channels[channelTab]);
+            List<Channel> channels = new List<Channel>();
+            for (int i = 0; i < MaxChannels; i++)
+            {
+                Channel channel = _channels[channelTab][i];
+                if (channel == null)
+                {
+                    continue;
+                }
+
+                channels.Add(channel);
+            }
+
+            return channels;
         }
 
         public List<Channel> GetChannels()

@@ -43,7 +43,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
             Logger.Debug($"unk4:{unk4}");
 
             IBuffer b = new StreamBuffer();
-            b.WriteInt32(1); // room number 0 - 299 (001 - 300)
+            b.WriteInt32(room.Id);
             b.WriteCString(room.Name);
             b.WriteByte((byte)room.Team);
             b.WriteByte((byte)room.Key);

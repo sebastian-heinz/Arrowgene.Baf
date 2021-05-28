@@ -11,6 +11,10 @@ namespace Arrowgene.Baf.Server.Model
         }
         
         public string Name { get; set; }
+        
+        /// <summary>
+        /// 0 - 299 (001 - 300)
+        /// </summary>
         public int Id { get; set; }
         public int SlotsAvailable { get; set; }
         public TeamType Team { get; set; }
