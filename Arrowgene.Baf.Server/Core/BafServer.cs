@@ -50,6 +50,14 @@ namespace Arrowgene.Baf.Server.Core
             _consumer.AddHandler(new JoinRoomHandle(this));
             _consumer.AddHandler(new LobbyProfileHandle(this));
             _consumer.AddHandler(new RoomListHandle(this));
+            _consumer.AddHandler(new RoomChatHandle(this));
+            _consumer.AddHandler(new RoomChangeColorHandle(this));
+            _consumer.AddHandler(new RoomChangeSettingHandle(this));
+            _consumer.AddHandler(new RoomLeaveHandle(this));
+            _consumer.AddHandler(new RoomStartSongHandle(this));
+            _consumer.AddHandler(new RoomSpectatorHandle(this));
+            _consumer.AddHandler(new RoomSelectSongHandle(this));
+            _consumer.AddHandler(new RoomSelectModeHandle(this));
 
             _server = new AsyncEventServer(
                 IPAddress.Any,

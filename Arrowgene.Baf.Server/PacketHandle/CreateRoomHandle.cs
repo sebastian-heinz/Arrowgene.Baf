@@ -53,8 +53,27 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteInt32(0); // battery
             b.WriteByte(0); // unknown
             
-            BafPacket p = new BafPacket(PacketId.CreateRoomRes, b.GetAllBytes());
+            BafPacket p = new BafPacket(PacketId.AnnounceRoomRes, b.GetAllBytes());
             client.Send(p);
+            
+            
+            
+            IBuffer b1 = new StreamBuffer();
+            b1.WriteInt32(0);
+            b1.WriteInt32(room.Id);
+            b1.WriteByte(0);
+            b1.WriteByte(0);
+            b1.WriteByte(0);
+            b1.WriteByte(0);
+            b1.WriteByte(0);
+            b1.WriteInt32(0);
+            b1.WriteByte(0);
+            b1.WriteInt32(0);
+            b1.WriteByte(0);
+            BafPacket p1 = new BafPacket(PacketId.CreateRoomRes, b1.GetAllBytes());
+            client.Send(p1);
+            
+            
         }
 
     }

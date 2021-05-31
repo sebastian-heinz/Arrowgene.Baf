@@ -9,7 +9,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
     {
         private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(JoinRoomHandle));
 
-        public override PacketId Id => PacketId.JoinRoomReq;
+        public override PacketId Id => PacketId.RoomJoinReq;
 
         public JoinRoomHandle(BafServer server) : base(server)
         {
@@ -43,7 +43,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteInt32(0);
             b.WriteInt32(0);
 
-            BafPacket p = new BafPacket(PacketId.JoinRoomRes, b.GetAllBytes());
+            BafPacket p = new BafPacket(PacketId.RoomJoinRes, b.GetAllBytes());
             client.Send(p);
         }
 
