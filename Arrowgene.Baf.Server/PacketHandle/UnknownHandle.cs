@@ -1,6 +1,7 @@
 using Arrowgene.Baf.Server.Core;
 using Arrowgene.Baf.Server.Logging;
 using Arrowgene.Baf.Server.Packet;
+using Arrowgene.Buffers;
 using Arrowgene.Logging;
 
 namespace Arrowgene.Baf.Server.PacketHandle
@@ -17,7 +18,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
         
         public override void Handle(BafClient client, BafPacket packet)
         {
-            Logger.Info(client, $"Unhandled PacketId:{packet.IdValue} Hex:{packet.IdValue:X}");
+            Logger.Error(client, $"Unhandled PacketId:{packet.IdValue} Hex:{packet.IdValue:X}");
         }
 
     }

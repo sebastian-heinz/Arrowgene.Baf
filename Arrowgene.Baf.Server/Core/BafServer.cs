@@ -58,6 +58,9 @@ namespace Arrowgene.Baf.Server.Core
             _consumer.AddHandler(new RoomSpectatorHandle(this));
             _consumer.AddHandler(new RoomSelectSongHandle(this));
             _consumer.AddHandler(new RoomSelectModeHandle(this));
+            _consumer.AddHandler(new ShopBuyItemHandle(this));
+            _consumer.AddHandler(new CreateBandHandle(this));
+            _consumer.AddHandler(new Unknown0Handle(this));
 
             _server = new AsyncEventServer(
                 IPAddress.Any,
@@ -120,6 +123,7 @@ namespace Arrowgene.Baf.Server.Core
 
         public void ReLoadHandler(DirectoryInfo directoryInfo)
         {
+            _consumer.ClearHandler();
             _scriptEngine.ReLoadHandler(directoryInfo, _consumer, this);
         }
 

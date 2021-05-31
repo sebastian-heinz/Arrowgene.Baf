@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Arrowgene.Baf.Server.Asset;
+using Arrowgene.Baf.Server.Common;
 using Arrowgene.Baf.Server.Core;
 using Arrowgene.Baf.Server.Logging;
 using Arrowgene.Baf.Server.Packet;
@@ -40,13 +41,15 @@ namespace Arrowgene.Baf
                         case ConsoleKey.R:
                         {
                             Console.WriteLine("Reloading Handler...");
-                            DirectoryInfo di = new DirectoryInfo("/Users/railgun/dev/Arrowgene.Baf/Arrowgene.Baf.Server/PacketHandle");
+                            DirectoryInfo di =
+                                new DirectoryInfo("/Users/railgun/dev/Arrowgene.Baf/Arrowgene.Baf.Server/PacketHandle");
                             server.ReLoadHandler(di);
                             Console.WriteLine("Done");
                             break;
                         }
                     }
                 }
+
                 return;
             }
 
@@ -55,6 +58,17 @@ namespace Arrowgene.Baf
                 string operation = args[0].ToLower();
                 switch (operation)
                 {
+                    case "bfm":
+                    {
+                        if (args.Length == 2)
+                        {
+                            FileInfo bfmPath = new FileInfo(args[1]);
+                            byte[] data = File.ReadAllBytes(bfmPath.FullName);
+                            BafXor.XorBfm(data);
+                            File.WriteAllBytes(bfmPath.FullName + ".dec", data);
+                        }
+                        break;
+                    }
                     case "extract":
                     {
                         if (args.Length == 2)
@@ -77,13 +91,14 @@ namespace Arrowgene.Baf
                         {
                             DataArchive archive = new DataArchive();
                             archive.AddFolder(args[1]);
-                            archive.Save(args[2],args[3]);
+                            archive.Save(args[2], args[3]);
                         }
+
                         break;
                     }
                 }
             }
-            
+
             LogProvider.Stop();
         }
 
