@@ -15,19 +15,18 @@ namespace Arrowgene.Baf.Server.PacketHandle
         public CreateBandHandle(BafServer server) : base(server)
         {
         }
-        
+
         public override void Handle(BafClient client, BafPacket packet)
         {
             IBuffer buffer = packet.CreateBuffer();
             int unk = buffer.ReadInt32();
             string bandName = buffer.ReadCString();
             byte unk1 = buffer.ReadByte();
-            Logger.Info($"Create Band:{bandName}");
-            
+            Logger.Info(client, $"Create Band:{bandName}");
+
             IBuffer b = new StreamBuffer();
             BafPacket p = new BafPacket(PacketId.CreateBandRes, b.GetAllBytes());
             client.Send(p);
         }
-
     }
 }

@@ -43,12 +43,12 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteInt32(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteInt32(character.GetEquippedItemId(ItemType.Head));
-            b.WriteInt32(character.GetEquippedItemId(ItemType.Hair));
-            b.WriteInt32(character.GetEquippedItemId(ItemType.Chest));
-            b.WriteInt32(character.GetEquippedItemId(ItemType.Pants));
-            b.WriteInt32(character.GetEquippedItemId(ItemType.Hands));
-            b.WriteInt32(character.GetEquippedItemId(ItemType.Shoes));
+            b.WriteInt32(character.GetShopItemId(ItemType.Head));
+            b.WriteInt32(character.GetShopItemId(ItemType.Hair));
+            b.WriteInt32(character.GetShopItemId(ItemType.Chest));
+            b.WriteInt32(character.GetShopItemId(ItemType.Pants));
+            b.WriteInt32(character.GetShopItemId(ItemType.Hands));
+            b.WriteInt32(character.GetShopItemId(ItemType.Shoes));
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);

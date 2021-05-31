@@ -23,7 +23,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
             int songId = buffer.ReadInt32();
             byte difficulty = buffer.ReadByte();
             SongDifficultyType songDifficulty = (SongDifficultyType) difficulty;
-            Logger.Info($"Selected Song: Id:{songId} Difficulty:{songDifficulty}");
+            Logger.Info(client, $"Selected Song: Id:{songId} Difficulty:{songDifficulty}");
 
             IBuffer b = new StreamBuffer();
             b.WriteInt32(songId);

@@ -22,6 +22,11 @@ namespace Arrowgene.Baf.Server.Core
             _packetHandlers = new Dictionary<PacketId, IPacketHandler>();
         }
 
+        public int GetHandlerCount()
+        {
+            return _packetHandlers.Count;
+        }
+
         public void ClearHandler()
         {
             _packetHandlers.Clear();

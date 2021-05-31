@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using Arrowgene.Baf.Server.Asset;
+using Arrowgene.Baf.Server.Common;
 using Arrowgene.Baf.Server.Model;
 using Arrowgene.Baf.Server.PacketHandle;
 using Arrowgene.Baf.Server.Scripting;
@@ -22,14 +23,16 @@ namespace Arrowgene.Baf.Server.Core
         private readonly BafSetting _setting;
         private readonly BafScriptEngine _scriptEngine;
         private readonly Channel[][] _channels;
-        private readonly Dictionary<int, Item> _items;
+        private readonly Dictionary<int, ShopItem> _shopItems;
+        private readonly Dictionary<int, Song> _songs;
 
         public BafServer(BafSetting setting)
         {
             _setting = new BafSetting(setting);
             _consumer = new BafQueueConsumer(_setting.ServerSetting);
             _scriptEngine = new BafScriptEngine();
-            _items = new Dictionary<int, Item>();
+            _shopItems = new Dictionary<int, ShopItem>();
+            _songs = new Dictionary<int, Song>();
             _channels = new Channel[ChannelTabs][];
             _server = new AsyncEventServer(
                 IPAddress.Any,
@@ -42,14 +45,15 @@ namespace Arrowgene.Baf.Server.Core
 
         private void Load()
         {
-            // load items
-            List<Item> items = DressXml.Parse("/Users/railgun/dev/Arrowgene.Baf/Arrowgene.Baf.Server/Files/DRESS.XML");
-            foreach (Item item in items)
+            string dressXmlPath = Path.Combine(Util.ExecutingDirectory().FullName, "Files/DRESS.XML");
+            List<ShopItem> items = DressXml.Parse(dressXmlPath);
+            foreach (ShopItem item in items)
             {
-                _items.Add(item.Id, item);
+                _shopItems.Add(item.Id, item);
             }
 
-            // load channel
+            Logger.Info($"Loaded Items: {_shopItems.Count}");
+
             for (short channelTab = 0; channelTab < ChannelTabs; channelTab++)
             {
                 _channels[channelTab] = new Channel[MaxChannels];
@@ -61,7 +65,6 @@ namespace Arrowgene.Baf.Server.Core
                 }
             }
 
-            // load handler
             _consumer.AddHandler(new UnknownHandle(this));
             _consumer.AddHandler(new InitialHandle(this));
             _consumer.AddHandler(new LoginHandle(this));
@@ -84,6 +87,8 @@ namespace Arrowgene.Baf.Server.Core
             _consumer.AddHandler(new ShopBuyItemHandle(this));
             _consumer.AddHandler(new CreateBandHandle(this));
             _consumer.AddHandler(new Unknown0Handle(this));
+
+            Logger.Info($"Loaded PacketHandler: {_consumer.GetHandlerCount()}");
         }
 
         public Channel GetChannel(short channelTab, short channelNumber)
@@ -101,6 +106,15 @@ namespace Arrowgene.Baf.Server.Core
             }
 
             return _channels[channelTab][channelNumber];
+        }
+
+        public ShopItem GetShopItem(int shopItemId)
+        {
+            if (!_shopItems.ContainsKey(shopItemId))
+            {
+                return null;
+            }
+            return _shopItems[shopItemId];
         }
 
         public List<Channel> GetChannels(short channelTab)

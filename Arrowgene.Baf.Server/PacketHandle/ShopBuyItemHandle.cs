@@ -1,5 +1,6 @@
 using Arrowgene.Baf.Server.Core;
 using Arrowgene.Baf.Server.Logging;
+using Arrowgene.Baf.Server.Model;
 using Arrowgene.Baf.Server.Packet;
 using Arrowgene.Buffers;
 using Arrowgene.Logging;
@@ -15,18 +16,33 @@ namespace Arrowgene.Baf.Server.PacketHandle
         public ShopBuyItemHandle(BafServer server) : base(server)
         {
         }
-        
+
         public override void Handle(BafClient client, BafPacket packet)
         {
             IBuffer buffer = packet.CreateBuffer();
-            int itemId = buffer.ReadInt32();
-            Logger.Info($"Purchase Item: Id:{itemId}");
+            int shopItemId = buffer.ReadInt32();
+            Logger.Info(client, $"Purchase ShopItemId: {shopItemId}");
+
+            ShopItem shopItem = _server.GetShopItem(shopItemId);
+            if (shopItem == null)
+            {
+                Logger.Error(client, $"Invalid ShopItemId: {shopItemId}");
+                return;
+            }
+
+            Character character = client.Character;
+            if (character == null)
+            {
+                Logger.Error(client, $"Character is null");
+                return;
+            }
             
+            
+
             IBuffer b = new StreamBuffer();
 
             BafPacket p = new BafPacket(PacketId.ShopBuyItemRes, b.GetAllBytes());
             client.Send(p);
         }
-
     }
 }

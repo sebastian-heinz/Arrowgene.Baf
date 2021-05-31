@@ -12,7 +12,7 @@
     <ItemGroup>
         <ContentWithTargetPath Include="Files\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <TargetPath>Client\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
+            <TargetPath>Files\%(RecursiveDir)%(Filename)%(Extension)</TargetPath>
         </ContentWithTargetPath>
     </ItemGroup>
 </Project>

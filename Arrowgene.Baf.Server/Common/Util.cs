@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using System.Reflection;
 using System.Text;
 using Arrowgene.Buffers;
 
@@ -14,75 +16,39 @@ namespace Arrowgene.Baf.Server.Common
             EncodingSimpChinese = Encoding.GetEncoding("gb2312");
         }
 
-        public static byte[] FromHexString(string hexString)
+        public static DirectoryInfo ExecutingDirectory()
         {
-            if ((hexString.Length & 1) != 0)
+            Assembly assembly = Assembly.GetEntryAssembly();
+            if (assembly == null)
             {
-                throw new ArgumentException("Input must have even number of characters");
+                return null;
             }
 
-            byte[] ret = new byte[hexString.Length / 2];
-            for (int i = 0; i < ret.Length; i++)
+            string path = assembly.CodeBase;
+            Uri uri = new Uri(path);
+            string directory = Path.GetDirectoryName(uri.LocalPath);
+            if (directory == null)
             {
-                int high = hexString[i * 2];
-                int low = hexString[i * 2 + 1];
-                high = (high & 0xf) + ((high & 0x40) >> 6) * 9;
-                low = (low & 0xf) + ((low & 0x40) >> 6) * 9;
-
-                ret[i] = (byte) ((high << 4) | low);
+                return null;
             }
 
-            return ret;
+            return new DirectoryInfo(directory);
         }
 
-        public static string ToHexString(byte[] data, char? seperator = null)
+        public static string ToHexString(byte[] data, char? separator = null)
         {
             StringBuilder sb = new StringBuilder();
             int len = data.Length;
             for (int i = 0; i < len; i++)
             {
                 sb.Append(data[i].ToString("X2"));
-                if (seperator != null && i < len - 1)
+                if (separator != null && i < len - 1)
                 {
-                    sb.Append(seperator);
+                    sb.Append(separator);
                 }
             }
 
             return sb.ToString();
-        }
-
-        public static string ToAsciiString(byte[] data, bool spaced)
-        {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < data.Length; i++)
-            {
-                char c = '.';
-                if (data[i] >= 'A' && data[i] <= 'Z') c = (char) data[i];
-                if (data[i] >= 'a' && data[i] <= 'z') c = (char) data[i];
-                if (data[i] >= '0' && data[i] <= '9') c = (char) data[i];
-                if (spaced && i != 0)
-                {
-                    sb.Append("  ");
-                }
-
-                sb.Append(c);
-            }
-
-            return sb.ToString();
-        }
-
-        public static void DumpBuffer(IBuffer buffer)
-        {
-            int pos = buffer.Position;
-            buffer.SetPositionStart();
-            Console.WriteLine(ToAsciiString(buffer.GetAllBytes(), true));
-            while (buffer.Size > buffer.Position)
-            {
-                byte[] row = buffer.ReadBytes(16);
-                Console.WriteLine(ToHexString(row, ' '));
-            }
-
-            buffer.Position = pos;
         }
 
         public static string HexDump(byte[] bytes, int bytesPerLine = 16)
@@ -90,8 +56,7 @@ namespace Arrowgene.Baf.Server.Common
             if (bytes == null) return "<null>";
             int bytesLength = bytes.Length;
 
-            char[] HexChars = "0123456789ABCDEF".ToCharArray();
-
+            char[] hexChars = "0123456789ABCDEF".ToCharArray();
             int firstHexColumn =
                 8 // 8 characters for the address
                 + 3; // 3 spaces
@@ -112,14 +77,14 @@ namespace Arrowgene.Baf.Server.Common
 
             for (int i = 0; i < bytesLength; i += bytesPerLine)
             {
-                line[0] = HexChars[(i >> 28) & 0xF];
-                line[1] = HexChars[(i >> 24) & 0xF];
-                line[2] = HexChars[(i >> 20) & 0xF];
-                line[3] = HexChars[(i >> 16) & 0xF];
-                line[4] = HexChars[(i >> 12) & 0xF];
-                line[5] = HexChars[(i >> 8) & 0xF];
-                line[6] = HexChars[(i >> 4) & 0xF];
-                line[7] = HexChars[(i >> 0) & 0xF];
+                line[0] = hexChars[(i >> 28) & 0xF];
+                line[1] = hexChars[(i >> 24) & 0xF];
+                line[2] = hexChars[(i >> 20) & 0xF];
+                line[3] = hexChars[(i >> 16) & 0xF];
+                line[4] = hexChars[(i >> 12) & 0xF];
+                line[5] = hexChars[(i >> 8) & 0xF];
+                line[6] = hexChars[(i >> 4) & 0xF];
+                line[7] = hexChars[(i >> 0) & 0xF];
 
                 int hexColumn = firstHexColumn;
                 int charColumn = firstCharColumn;
@@ -136,8 +101,8 @@ namespace Arrowgene.Baf.Server.Common
                     else
                     {
                         byte b = bytes[i + j];
-                        line[hexColumn] = HexChars[(b >> 4) & 0xF];
-                        line[hexColumn + 1] = HexChars[b & 0xF];
+                        line[hexColumn] = hexChars[(b >> 4) & 0xF];
+                        line[hexColumn + 1] = hexChars[b & 0xF];
                         line[charColumn] = (b < 32 ? '·' : (char) b);
                     }
 

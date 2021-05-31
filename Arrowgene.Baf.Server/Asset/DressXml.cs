@@ -12,9 +12,9 @@ namespace Arrowgene.Baf.Server.Asset
     {
         private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(DressXml));
 
-        public static List<Item> Parse(string path)
+        public static List<ShopItem> Parse(string path)
         {
-            List<Item> items = new List<Item>();
+            List<ShopItem> items = new List<ShopItem>();
 
             FileInfo file = new FileInfo(path);
             if (!file.Exists)
@@ -48,9 +48,9 @@ namespace Arrowgene.Baf.Server.Asset
                     continue;
                 }
 
-                Item item = new Item();
-                item.Id = itemId;
-                item.Name = node.Attributes["name"].InnerText;
+                ShopItem shopItem = new ShopItem();
+                shopItem.Id = itemId;
+                shopItem.Name = node.Attributes["name"].InnerText;
 
                 if (!Enum.TryParse(node.Attributes["type"].InnerText, out ItemType type))
                 {
@@ -58,7 +58,7 @@ namespace Arrowgene.Baf.Server.Asset
                     continue;
                 }
 
-                item.Type = type;
+                shopItem.Type = type;
 
                 if (!Enum.TryParse(node.Attributes["sex"].InnerText, out GenderType gender))
                 {
@@ -66,7 +66,7 @@ namespace Arrowgene.Baf.Server.Asset
                     continue;
                 }
 
-                item.Gender = gender;
+                shopItem.Gender = gender;
 
                 if (!int.TryParse(node.Attributes["new"].InnerText, out int isNew))
                 {
@@ -74,7 +74,7 @@ namespace Arrowgene.Baf.Server.Asset
                     continue;
                 }
 
-                item.IsNew = isNew == 1;
+                shopItem.IsNew = isNew == 1;
 
                 if (!int.TryParse(node.Attributes["hot"].InnerText, out int isHot))
                 {
@@ -82,7 +82,7 @@ namespace Arrowgene.Baf.Server.Asset
                     continue;
                 }
 
-                item.IsHot = isHot == 1;
+                shopItem.IsHot = isHot == 1;
 
                 if (!int.TryParse(node.Attributes["onlysend"].InnerText, out int onlySend))
                 {
@@ -90,7 +90,7 @@ namespace Arrowgene.Baf.Server.Asset
                     continue;
                 }
 
-                item.OnlyGift = onlySend == 1;
+                shopItem.OnlyGift = onlySend == 1;
 
 
                 if (!int.TryParse(node.Attributes["onlymarried"].InnerText, out int onlyMarried))
@@ -99,7 +99,7 @@ namespace Arrowgene.Baf.Server.Asset
                     continue;
                 }
 
-                item.OnlyMarried = onlyMarried == 1;
+                shopItem.OnlyMarried = onlyMarried == 1;
 
                 if (!int.TryParse(node.Attributes["level"].InnerText, out int level))
                 {
@@ -107,9 +107,9 @@ namespace Arrowgene.Baf.Server.Asset
                     continue;
                 }
 
-                item.Level = level;
+                shopItem.Level = level;
 
-                item.Model = node.Attributes["model"].InnerText;
+                shopItem.Model = node.Attributes["model"].InnerText;
 
                 if (node.Attributes["gem30"] == null)
                 {
@@ -122,7 +122,7 @@ namespace Arrowgene.Baf.Server.Asset
                         continue;
                     }
 
-                    item.Gem30 = gem30;
+                    shopItem.Gem30 = gem30;
                 }
 
                 if (node.Attributes["money7"] == null)
@@ -136,7 +136,7 @@ namespace Arrowgene.Baf.Server.Asset
                         continue;
                     }
 
-                    item.Money7 = money7;
+                    shopItem.Money7 = money7;
                 }
 
 
@@ -151,7 +151,7 @@ namespace Arrowgene.Baf.Server.Asset
                         continue;
                     }
 
-                    item.Money30 = money30;
+                    shopItem.Money30 = money30;
                 }
 
                 if (node.Attributes["money"] == null)
@@ -165,7 +165,7 @@ namespace Arrowgene.Baf.Server.Asset
                         continue;
                     }
 
-                    item.Money = money;
+                    shopItem.Money = money;
                 }
 
 
@@ -208,7 +208,7 @@ namespace Arrowgene.Baf.Server.Asset
                     }
                 }
 
-                items.Add(item);
+                items.Add(shopItem);
             }
 
             return items;

@@ -31,7 +31,7 @@ namespace Arrowgene.Baf.Server.Model
         public Item Hands { get; set; }
         public Item Shoes { get; set; }
 
-        public int GetEquippedItemId(ItemType itemType)
+        public int GetShopItemId(ItemType itemType)
         {
             Item item = null;
             switch (itemType)
@@ -70,10 +70,10 @@ namespace Arrowgene.Baf.Server.Model
 
             if (item != null)
             {
-                return item.Id;
+                return item.ShopItem.Id;
             }
 
-            return Item.DefaultId;
+            return ShopItem.DefaultId;
         }
     }
 }

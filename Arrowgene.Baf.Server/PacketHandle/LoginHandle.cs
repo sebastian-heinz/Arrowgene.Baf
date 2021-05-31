@@ -30,7 +30,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
             string password = buffer.ReadCString();
             string pin = buffer.ReadCString();
 
-            Logger.Debug($"Login: Acc:{account} Pw:{password} Pin:{pin}");
+            Logger.Debug(client, $"Login: Acc:{account} Pw:{password} Pin:{pin}");
 
             Character character = new Character();
             character.Name = account;
@@ -44,44 +44,44 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteCString(character.Name);
             b.WriteByte(0);
             b.WriteByte(0);
-            
+
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
-            
+
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
-            
+
             b.WriteCString("TESTC");
             b.WriteCString("TESTD");
             b.WriteCString("TESTE");
             b.WriteCString("TESTF");
             b.WriteCString("TESTG");
-            
+
             b.WriteByte(0);
             b.WriteByte(0);
-            
+
             b.WriteCString("TESTH");
-            
+
             b.WriteByte(0);
-            
+
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
-            
+
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
-            
+
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);
@@ -90,19 +90,19 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            
+
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            
-            
+
+
             b.WriteCString("TESTI");
             b.WriteCString("TESTJ");
-            
+
             b.WriteInt32(0);
             b.WriteInt32(0);
-            
+
             BafPacket p = new BafPacket(PacketId.LoginRes, b.GetAllBytes());
             client.Send(p);
         }
