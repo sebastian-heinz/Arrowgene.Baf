@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using Arrowgene.Baf.Server.Asset;
 using Arrowgene.Baf.Server.Model;
 using Arrowgene.Baf.Server.PacketHandle;
 using Arrowgene.Baf.Server.Scripting;
@@ -21,13 +22,34 @@ namespace Arrowgene.Baf.Server.Core
         private readonly BafSetting _setting;
         private readonly BafScriptEngine _scriptEngine;
         private readonly Channel[][] _channels;
+        private readonly Dictionary<int, Item> _items;
 
         public BafServer(BafSetting setting)
         {
             _setting = new BafSetting(setting);
             _consumer = new BafQueueConsumer(_setting.ServerSetting);
             _scriptEngine = new BafScriptEngine();
+            _items = new Dictionary<int, Item>();
             _channels = new Channel[ChannelTabs][];
+            _server = new AsyncEventServer(
+                IPAddress.Any,
+                3232,
+                _consumer,
+                _setting.ServerSetting
+            );
+            Load();
+        }
+
+        private void Load()
+        {
+            // load items
+            List<Item> items = DressXml.Parse("/Users/railgun/dev/Arrowgene.Baf/Arrowgene.Baf.Server/Files/DRESS.XML");
+            foreach (Item item in items)
+            {
+                _items.Add(item.Id, item);
+            }
+
+            // load channel
             for (short channelTab = 0; channelTab < ChannelTabs; channelTab++)
             {
                 _channels[channelTab] = new Channel[MaxChannels];
@@ -39,6 +61,7 @@ namespace Arrowgene.Baf.Server.Core
                 }
             }
 
+            // load handler
             _consumer.AddHandler(new UnknownHandle(this));
             _consumer.AddHandler(new InitialHandle(this));
             _consumer.AddHandler(new LoginHandle(this));
@@ -61,13 +84,6 @@ namespace Arrowgene.Baf.Server.Core
             _consumer.AddHandler(new ShopBuyItemHandle(this));
             _consumer.AddHandler(new CreateBandHandle(this));
             _consumer.AddHandler(new Unknown0Handle(this));
-
-            _server = new AsyncEventServer(
-                IPAddress.Any,
-                3232,
-                _consumer,
-                _setting.ServerSetting
-            );
         }
 
         public Channel GetChannel(short channelTab, short channelNumber)

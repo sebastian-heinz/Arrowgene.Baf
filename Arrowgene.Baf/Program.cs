@@ -20,6 +20,9 @@ namespace Arrowgene.Baf
             LogProvider.OnLogWrite += LogProviderOnOnLogWrite;
             LogProvider.Start();
 
+            
+  
+
             if (args.Length == 0)
             {
                 BafServer server = new BafServer(Setting);

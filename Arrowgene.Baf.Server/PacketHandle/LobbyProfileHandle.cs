@@ -1,4 +1,5 @@
 using Arrowgene.Baf.Server.Core;
+using Arrowgene.Baf.Server.Logging;
 using Arrowgene.Baf.Server.Model;
 using Arrowgene.Baf.Server.Packet;
 using Arrowgene.Buffers;
@@ -8,7 +9,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
 {
     public class LobbyProfileHandle : PacketHandler
     {
-        private static readonly ILogger Logger = LogProvider.Logger<Logger>(typeof(LobbyProfileHandle));
+        private static readonly BafLogger Logger = LogProvider.Logger<BafLogger>(typeof(LobbyProfileHandle));
 
         public override PacketId Id => PacketId.LobbyProfileReq;
 
@@ -21,7 +22,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
             Character character = client.Character;
             if (character == null)
             {
-                // todo err
+                Logger.Error(client, "Character is null");
                 return;
             }
             
@@ -42,12 +43,12 @@ namespace Arrowgene.Baf.Server.PacketHandle
             b.WriteInt32(0);
             b.WriteByte(0);
             b.WriteByte(0);
-            b.WriteInt32(0x7FFFFFFF); // head
-            b.WriteInt32(0x7FFFFFFF); // hair
-            b.WriteInt32(0x7FFFFFFF); // chest
-            b.WriteInt32(0x7FFFFFFF); // pants
-            b.WriteInt32(0x7FFFFFFF); // hands
-            b.WriteInt32(0x7FFFFFFF); // shoes
+            b.WriteInt32(character.GetEquippedItemId(ItemType.Head));
+            b.WriteInt32(character.GetEquippedItemId(ItemType.Hair));
+            b.WriteInt32(character.GetEquippedItemId(ItemType.Chest));
+            b.WriteInt32(character.GetEquippedItemId(ItemType.Pants));
+            b.WriteInt32(character.GetEquippedItemId(ItemType.Hands));
+            b.WriteInt32(character.GetEquippedItemId(ItemType.Shoes));
             b.WriteInt32(0);
             b.WriteInt32(0);
             b.WriteInt32(0);

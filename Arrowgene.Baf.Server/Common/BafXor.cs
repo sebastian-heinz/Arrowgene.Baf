@@ -92,22 +92,12 @@ namespace Arrowgene.Baf.Server.Common
             0xE7, 0xD4, 0xEC, 0xDD, 0xFE, 0x90, 0xCA, 0xBD, 0x08, 0x5E, 0x32, 0x00
         };
 
-        private static readonly byte[] KeyLogin =
-        {
-            0xBA, 0x0D
-        };
-
         private static void Xor(byte[] data, byte[] key)
         {
             for (int i = 0; i < data.Length; i++)
             {
                 data[i] ^= key[i % key.Length];
             }
-        }
-
-        public static void XorLogin(byte[] data)
-        {
-            Xor(data, KeyLogin);
         }
 
         public static void XorBfm(byte[] data)
@@ -120,15 +110,10 @@ namespace Arrowgene.Baf.Server.Common
             return new Stateful(KeyPacket);
         }
 
-        public static Stateful CreateStateful(byte[] key)
-        {
-            return new Stateful(key);
-        }
-
         public class Stateful
         {
             private int _index;
-            private byte[] _key;
+            private readonly byte[] _key;
 
             public Stateful(byte[] key)
             {
@@ -140,9 +125,9 @@ namespace Arrowgene.Baf.Server.Common
             {
                 for (int i = 0; i < data.Length; i++)
                 {
-                    data[i] ^= KeyPacket[_index];
+                    data[i] ^= _key[_index];
                     _index++;
-                    if (_index >= KeyPacket.Length)
+                    if (_index >= _key.Length)
                     {
                         _index = 0;
                     }
