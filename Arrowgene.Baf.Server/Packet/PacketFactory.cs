@@ -54,10 +54,23 @@ namespace Arrowgene.Baf.Server.Packet
                 return null;
             }
 
+            ushort packetId = (ushort) packet.Id;
+            if (packet.Id == PacketId.Unknown)
+            {
+                // packet crafted without enum id
+                if (packet.IdValue == packetId)
+                {
+                    Logger.Error(_client, $"Write: tried to send invalid packet");
+                    return null;
+                }
+
+                packetId = packet.IdValue;
+            }
+
             ushort size = (ushort) packetSize;
             IBuffer buffer = new StreamBuffer();
             buffer.WriteUInt16(size);
-            buffer.WriteUInt16((ushort) packet.Id);
+            buffer.WriteUInt16(packetId);
             buffer.WriteBytes(packet.Data);
             byte[] packetData = buffer.GetAllBytes();
             return packetData;

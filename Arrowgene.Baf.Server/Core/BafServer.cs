@@ -86,6 +86,7 @@ namespace Arrowgene.Baf.Server.Core
             _consumer.AddHandler(new RoomSelectModeHandle(this));
             _consumer.AddHandler(new ShopBuyItemHandle(this));
             _consumer.AddHandler(new CreateBandHandle(this));
+            _consumer.AddHandler(new RoomGameLoadingHandle(this));
             _consumer.AddHandler(new Unknown0Handle(this));
 
             Logger.Info($"Loaded PacketHandler: {_consumer.GetHandlerCount()}");

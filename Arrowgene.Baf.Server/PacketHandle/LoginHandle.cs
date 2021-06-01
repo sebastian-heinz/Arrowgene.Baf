@@ -19,13 +19,7 @@ namespace Arrowgene.Baf.Server.PacketHandle
 
         public override void Handle(BafClient client, BafPacket packet)
         {
-            byte[] data = packet.Data;
-            // Logger.Data(client, data, "Login");
-            // BafXor.XorLogin(data);
-            // Logger.Data(client, data, "LoginXor");
-
-            IBuffer buffer = new StreamBuffer(data);
-            buffer.SetPositionStart();
+            IBuffer buffer = packet.CreateBuffer();
             string account = buffer.ReadCString();
             string password = buffer.ReadCString();
             string pin = buffer.ReadCString();

@@ -60,6 +60,8 @@
         RoomStartSongRes = 3033,
         RoomChangeColorReq = 3028,
         RoomChangeColorRes = 3029,
+        RoomGameLoadingHandleReq = 3039,
+        RoomGameLoadingFinishedRes = 3041,
         RoomSpectatorReq = 3053,
         RoomSpectatorRes = 3054,
         RoomSelectModeReq = 3075,
